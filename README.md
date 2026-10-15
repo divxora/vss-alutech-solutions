@@ -1,135 +1,78 @@
-# VSS Alutech Solutions - Business Website
+# VSS Alutech Solutions - React Application
 
-A complete, responsive, and professional B2B industrial website for **VSS Alutech Solutions**, an engineering solutions partner specializing in aluminium extrusion plant setup, machinery consultancy, billet heating and ageing furnaces, operational troubleshooting, precision die sourcing, and industrial technical manpower supply.
-
----
-
-## 🏭 Design & Aesthetic Highlights
-
-- **Visual Theme:** Premium Industrial B2B aesthetic utilizing deep navy (`#0A192F`), crisp pure white (`#FFFFFF`), and high-energy industrial orange (`#FF6B00`).
-- **Factory Photography:** High-resolution, authentic photography of heavy aluminium extrusion presses, glowing billet heating furnaces, precision CNC tool rooms, and factory operational personnel.
-- **Header Architecture:** Two-level header with top industrial utility bar (contact placeholders, location badge, brochure link) and clean white main navigation with custom geometric extrusion die SVG logo mark.
-- **Hero Section:** Full-width high-impact extrusion press line visual with dark navy contrast overlay, 5 compact service highlights, and dual call-to-action buttons.
-- **Responsive Layout:** Adaptive multi-breakpoint design thoroughly styled for desktop (>1200px), tablet (768px - 1024px), and mobile (375px - 640px) with touch-friendly drawer navigation.
+A modern, responsive, and high-performance React (Vite + TypeScript) B2B industrial website for **VSS Alutech Solutions**, an engineering solutions partner specializing in aluminium extrusion plant setup, machinery consultancy, billet heating and ageing furnaces, operational troubleshooting, precision die sourcing, and industrial technical manpower supply.
 
 ---
 
-## 🗂 Project File Structure
+## 🏭 Architecture & Modern React Port
+
+This project was rewritten into a React application on Vite + TypeScript, preserving all original features, business logic, visual styling, photography, and interactive widgets:
+
+- **Framework:** React 19 + TypeScript + Vite
+- **Styling:** Modular CSS architecture adhering to the original industrial aesthetic (Deep Navy `#0A192F`, Crisp White, Industrial Orange `#FF6B00`).
+- **Interactive State & Features:**
+  - **Header & Navigation:** Sticky scroll detection, active section observation via `IntersectionObserver`, and mobile drawer navigation with backdrop click and Escape key dismissal.
+  - **Aluminium Alloy Grades We Support:** Comprehensive metallurgical section showcasing standard series (1xxx, 2xxx, 3xxx, 4xxx, 5xxx, 6xxx, 7xxx) and a dedicated panel for 20 Additional Legacy Designations without chemical tables. Includes interactive series filtering and one-click quotation prefilling.
+  - **Authentic Factory Photography:** Real industrial plant photographs installed across all hero, furnace, extrusion press, tooling, and billet warehouse slots.
+  - **Press Capacity Sizing Estimator:** Real-time engineering rule-of-thumb benchmark with billet diameter selection (4" to 12") and alloy groups (6063, 6061, 7075/hard), with direct parameter transfer to the consultation form.
+  - **Manpower Interactive Filter Tabs:** Filterable roles across Senior Management, Supervisory/Technical, Machine Operators, and Support Staff.
+  - **Dedicated Manpower Requisition Form:** Form validation for worker count, designation, skill level, shift, contract duration, and location with localStorage persistence.
+  - **Consultation & Quote Form:** Form validation, drawing attachment handler (with live file size calculation in MB), localStorage persistence, and confirmation alerts.
+  - **Modals:** Solutions Brochure Download modal (with simulated download), Privacy Policy modal, and Terms & Conditions modal.
+  - **Interactive FAQ Accordion:** Clean animated accordion toggle for common technical queries.
+  - **Toast Notifications:** Self-dismissing toast alerts for interactive actions.
+  - **Back to Top:** Floating smooth-scroll button.
+
+---
+
+## 🗂 Project Structure
 
 ```
-├── index.html            # Main semantic HTML5 webpage
-├── style.css             # Vanilla CSS3 styling, variables, layout, and responsive media queries
-├── script.js             # Vanilla JavaScript for navigation, modal management, and form validation
-├── README.md             # Documentation, setup guidelines, and backend integration instructions
-├── .gitignore            # Git exclusion rules for IDE, OS, and temporary files
-└── assets/
-    └── images/           # High-resolution industrial photography assets
-        ├── hero-extrusion-press.jpg    # Custom photorealistic 8k extrusion press machinery
-        ├── furnace-solutions.jpg       # Billet heating furnace and ageing ovens
-        ├── toolroom-dies.jpg           # Precision extrusion dies and EDM tool room
-        ├── plant-troubleshooting.jpg   # Plant audit and quality troubleshooting engineers
-        ├── manpower-team.jpg           # Factory managers, press operators, and technicians
-        ├── profiles-billets.jpg        # Stacked aluminium profiles and raw billets
-        ├── electrical-automation.jpg   # Industrial PLC automation cabinets
-        ├── factory-dark-bg.jpg         # Industrial depth background for consultation section
-        ├── industry-architectural.jpg  # Architectural profiles application
-        ├── industry-automotive.jpg     # Automotive chassis / lightweight profiles
-        ├── industry-industrial.jpg     # Modular T-slot framing profiles
-        ├── industry-solar.jpg          # Solar mounting structures
-        ├── industry-consumer.jpg       # Heat sinks & consumer electronics
-        ├── industry-custom.jpg         # Custom profile geometries
-        ├── project-press.jpg           # Extrusion press installation benchmark
-        └── project-furnace.jpg         # Furnace setup benchmark
-```
-
----
-
-## ⚙️ Core Service Categories
-
-1. **Press Solutions (`#press-solutions`):**
-   - New plant planning & existing line upgrades.
-   - Sizing & tonnage consultation (550 UST up to 4,500+ UST).
-   - Machinery sourcing, quotation comparison, and commissioning supervision.
-2. **Furnace Solutions (`#furnace-solutions`):**
-   - Single-log & multi-log gas billet heaters with hot shears.
-   - Induction rapid taper billet heaters.
-   - High-convection artificial ageing ovens (T4, T5, T6 tempers).
-   - Energy efficiency auditing and fuel consumption reduction.
-3. **Plant Troubleshooting & Consultancy (`#plant-troubleshooting`):**
-   - Production bottleneck audits & dead-cycle minimization.
-   - Root-cause resolution for defects (die lines, blisters, grain growth, dimensional variances).
-   - Hydraulic, electrical, and alignment diagnostics.
-   - Expert on-site audits and retainer-based advisory.
-4. **Tool Room & Die Solutions (`#toolroom-dies`):**
-   - Transparent 4-step sourcing workflow linking customer drawings to certified independent tool rooms.
-   - Solid flat dies, hollow porthole bridge dies, and multi-cavity dies.
-   - *Ethical Transparency Note:* VSS acts as an engineering bridge to specialized independent tool rooms and does not claim in-house manufacturing.
-5. **Industrial Manpower Supplier (`#manpower-supplier`):**
-   - Categorized staffing: Senior Management (Plant Heads, Production Managers), Supervisory/Technical (Shift In-Charges, Maintenance/Electrical Technicians), Machine Operators (Extrusion Press, Furnace, Puller, Ageing Oven), and Support Staff (Stretcher, Helpers, Material Handlers).
-   - Flexible models: Contract-based, project commissioning, shift-based, and bulk greenfield staffing.
-   - Dedicated manpower requisition form with shift, skill, and location filters.
-
----
-
-## 🚀 How to Open and Test Locally
-
-### Option 1: Direct Browser Launch
-Double click on `index.html` in your file explorer, or right-click and choose **Open with > Google Chrome** (or Edge/Firefox).
-
-### Option 2: Using Node.js (Built-in)
-Run the following in PowerShell within this directory:
-```powershell
-npx serve -l 3000
-```
-Then open `http://localhost:3000` in your web browser.
-
-### Option 3: Using VS Code Live Server
-1. Open this folder in VS Code.
-2. Click **Go Live** in the bottom status bar, or right-click `index.html` and click **Open with Live Server**.
-
----
-
-## 🔌 How to Connect a Real Backend / Form Service
-
-The consultation and manpower forms include robust client-side validation for emails, phone numbers, and required parameters. To connect them to a production backend, choose one of the following methods:
-
-### Method A: Formspree (No Backend Required)
-1. Register at [formspree.io](https://formspree.io).
-2. Create a new form endpoint (e.g., `https://formspree.io/f/xvssalutech`).
-3. In `script.js`, replace the `consultationForm.addEventListener('submit', ...)` handler or simply add standard form action:
-   ```html
-   <form id="consultationForm" action="https://formspree.io/f/YOUR_ENDPOINT_ID" method="POST">
-   ```
-
-### Method B: EmailJS
-1. Sign up at [emailjs.com](https://www.emailjs.com/).
-2. Include the EmailJS SDK script in `index.html`.
-3. In `script.js`, replace the `console.info(...)` line with:
-   ```javascript
-   emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", formData)
-     .then(() => { /* show success message */ })
-     .catch((error) => { /* show error */ });
-   ```
-
-### Method C: Custom REST API (Node.js / Express / Python / PHP)
-Send a standard `fetch` POST request in `script.js`:
-```javascript
-fetch('/api/v1/inquiries', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify(formData)
-})
-.then(res => res.json())
-.then(data => {
-  // Show confirmation alert
-});
+├── index.html                 # HTML5 entry point with OpenGraph, SEO meta tags, and fonts
+├── package.json               # React 19 + TypeScript + Vite dependencies
+├── tsconfig.json              # TypeScript configuration
+├── vite.config.ts             # Vite server and bundler config
+├── metadata.json              # Application identity metadata
+├── README.md                  # Project documentation
+├── public/
+│   └── assets/images/         # Industrial photography and assets
+└── src/
+    ├── main.tsx               # React root entry point
+    ├── App.tsx                # Main App component coordinating state and sections
+    ├── types.ts               # Data models and form interfaces
+    ├── index.css              # Industrial B2B CSS styling and variables
+    └── components/
+        ├── Header.tsx         # Top utility bar, main nav, mobile drawer
+        ├── Hero.tsx           # Full-width hero banner with service highlights
+        ├── ServiceOverview.tsx# 6 Image service cards
+        ├── StatsPanel.tsx     # Capabilities and key statistics
+        ├── PressSolutions.tsx # Service 1 & Interactive Tonnage Estimator
+        ├── FurnaceSolutions.tsx # Service 2: Thermal engineering & ovens
+        ├── Troubleshooting.tsx# Service 3: Plant diagnostics & defect tags
+        ├── ToolRoomDies.tsx   # Service 4: 4-step transparent die sourcing workflow
+        ├── ManpowerSupplier.tsx# Service 5: Role filter tabs & staffing form
+        ├── ProcessRoadmap.tsx # 7-stage project lifecycle roadmap
+        ├── IndustriesServed.tsx# 6 application sector cards
+        ├── FeaturedProjects.tsx# 4 illustrative project benchmarks
+        ├── FaqSection.tsx     # Expandable accordion FAQs
+        ├── ConsultationSection.tsx # Consultation quote form with file attachment
+        ├── Footer.tsx         # Footer with dynamic year and contact details
+        ├── Modals.tsx         # Brochure, Privacy, and Terms dialogs
+        ├── Toast.tsx          # Real-time toast feedback
+        └── BackToTop.tsx      # Floating back to top button
 ```
 
 ---
 
-## 🛡️ Business Integrity & Compliance
+## 🚀 Development & Build
 
-- **No Fabricated Credentials:** Contact details, phone numbers, email addresses, completed project clients, and registration figures are explicitly designated as placeholders.
-- **Transparent Sourcing:** Clear disclaimers communicate that extrusion dies and machinery are sourced through vetted independent partner tool rooms and manufacturers.
-- **Dynamic Year:** Footer copyright updates automatically to the current calendar year.
-- **Intended Domain:** `vsslutechsolutions.in` (architectural prototype).
+```bash
+# Install dependencies
+npm install
+
+# Start dev server on port 3000
+npm run dev
+
+# Build production bundle
+npm run build
+```
