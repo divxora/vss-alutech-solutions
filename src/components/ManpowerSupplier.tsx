@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ManpowerFormData } from '../types';
+import { getAssetUrl } from '../utils/asset';
 
 interface ManpowerSupplierProps {
   onNotify: (title: string, message: string, isSuccess?: boolean) => void;
@@ -259,7 +260,7 @@ export const ManpowerSupplier: React.FC<ManpowerSupplierProps> = ({ onNotify }) 
             </div>
             <div
               className="manpower-photo-banner"
-              style={{ backgroundImage: `url('/assets/images/manpower-team.jpg')` }}
+              style={{ backgroundImage: `url('${getAssetUrl('assets/images/manpower-team.jpg')}')` }}
             >
               <div className="photo-banner-overlay">
                 <p>Industrial recruitment and placement subject to candidate verification, geographical feasibility, and agreed statutory compliance.</p>

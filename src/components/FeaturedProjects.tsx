@@ -1,4 +1,5 @@
 import React from 'react';
+import { getAssetUrl } from '../utils/asset';
 
 export const FeaturedProjects: React.FC = () => {
   return (
@@ -16,7 +17,7 @@ export const FeaturedProjects: React.FC = () => {
           <div className="project-card">
             <div className="project-img-box">
               <img
-                src="/assets/images/project-press.jpg"
+                src={getAssetUrl('assets/images/project-press.jpg')}
                 alt="Illustrative Extrusion Press Machinery Installation"
                 loading="lazy"
               />
@@ -36,7 +37,7 @@ export const FeaturedProjects: React.FC = () => {
           <div className="project-card">
             <div className="project-img-box">
               <img
-                src="/assets/images/project-furnace.jpg"
+                src={getAssetUrl('assets/images/project-furnace.jpg')}
                 alt="Illustrative Gas Billet Heating Furnace and Ageing Oven Setup"
                 loading="lazy"
               />
@@ -56,7 +57,7 @@ export const FeaturedProjects: React.FC = () => {
           <div className="project-card">
             <div className="project-img-box">
               <img
-                src="/assets/images/profiles-billets.jpg"
+                src={getAssetUrl('assets/images/profiles-billets.jpg')}
                 alt="Illustrative Aluminium Profile Production Line Optimization"
                 loading="lazy"
               />
@@ -76,7 +77,7 @@ export const FeaturedProjects: React.FC = () => {
           <div className="project-card">
             <div className="project-img-box">
               <img
-                src="/assets/images/toolroom-dies.jpg"
+                src={getAssetUrl('assets/images/toolroom-dies.jpg')}
                 alt="Illustrative Precision Die Sourcing and Tool Room Coordination"
                 loading="lazy"
               />

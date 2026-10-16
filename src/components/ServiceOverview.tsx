@@ -1,4 +1,5 @@
 import React from 'react';
+import { getAssetUrl } from '../utils/asset';
 
 export const ServiceOverview: React.FC = () => {
   return (
@@ -17,7 +18,7 @@ export const ServiceOverview: React.FC = () => {
           <a
             href="#press-solutions"
             className="image-service-card"
-            style={{ backgroundImage: `url('/assets/images/hero-extrusion-press.jpg')` }}
+            style={{ backgroundImage: `url('${getAssetUrl('assets/images/hero-extrusion-press.jpg')}')` }}
           >
             <div className="card-gradient"></div>
             <div className="card-content">
@@ -37,7 +38,7 @@ export const ServiceOverview: React.FC = () => {
           <a
             href="#furnace-solutions"
             className="image-service-card"
-            style={{ backgroundImage: `url('/assets/images/furnace-solutions.jpg')` }}
+            style={{ backgroundImage: `url('${getAssetUrl('assets/images/furnace-solutions.jpg')}')` }}
           >
             <div className="card-gradient"></div>
             <div className="card-content">
@@ -57,7 +58,7 @@ export const ServiceOverview: React.FC = () => {
           <a
             href="#alloy-grades"
             className="image-service-card"
-            style={{ backgroundImage: `url('/assets/images/profiles-billets.jpg')` }}
+            style={{ backgroundImage: `url('${getAssetUrl('assets/images/profiles-billets.jpg')}')` }}
           >
             <div className="card-gradient"></div>
             <div className="card-content">
@@ -77,7 +78,7 @@ export const ServiceOverview: React.FC = () => {
           <a
             href="#plant-troubleshooting"
             className="image-service-card"
-            style={{ backgroundImage: `url('/assets/images/plant-troubleshooting.jpg')` }}
+            style={{ backgroundImage: `url('${getAssetUrl('assets/images/plant-troubleshooting.jpg')}')` }}
           >
             <div className="card-gradient"></div>
             <div className="card-content">
@@ -97,7 +98,7 @@ export const ServiceOverview: React.FC = () => {
           <a
             href="#toolroom-dies"
             className="image-service-card"
-            style={{ backgroundImage: `url('/assets/images/toolroom-dies.jpg')` }}
+            style={{ backgroundImage: `url('${getAssetUrl('assets/images/toolroom-dies.jpg')}')` }}
           >
             <div className="card-gradient"></div>
             <div className="card-content">
@@ -117,7 +118,7 @@ export const ServiceOverview: React.FC = () => {
           <a
             href="#manpower-supplier"
             className="image-service-card"
-            style={{ backgroundImage: `url('/assets/images/manpower-team.jpg')` }}
+            style={{ backgroundImage: `url('${getAssetUrl('assets/images/manpower-team.jpg')}')` }}
           >
             <div className="card-gradient"></div>
             <div className="card-content">

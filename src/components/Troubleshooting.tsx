@@ -1,4 +1,5 @@
 import React from 'react';
+import { getAssetUrl } from '../utils/asset';
 
 interface TroubleshootingProps {
   onSelectService: (serviceName: string) => void;
@@ -77,7 +78,7 @@ export const Troubleshooting: React.FC<TroubleshootingProps> = ({ onSelectServic
           <div className="service-visual-col">
             <div className="visual-card">
               <img
-                src="/assets/images/plant-troubleshooting.jpg"
+                src={getAssetUrl('assets/images/plant-troubleshooting.jpg')}
                 alt="Industrial Engineers Conducting Aluminium Extrusion Plant Troubleshooting and Inspection"
                 className="service-img"
                 loading="lazy"

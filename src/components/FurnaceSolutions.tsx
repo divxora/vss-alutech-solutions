@@ -1,4 +1,5 @@
 import React from 'react';
+import { getAssetUrl } from '../utils/asset';
 
 interface FurnaceSolutionsProps {
   onSelectService: (serviceName: string) => void;
@@ -12,7 +13,7 @@ export const FurnaceSolutions: React.FC<FurnaceSolutionsProps> = ({ onSelectServ
           <div className="service-visual-col">
             <div className="visual-card">
               <img
-                src="/assets/images/furnace-solutions.jpg"
+                src={getAssetUrl('assets/images/furnace-solutions.jpg')}
                 alt="Aluminium Billet Heating Furnace and Ageing Oven in Extrusion Facility"
                 className="service-img"
                 loading="lazy"

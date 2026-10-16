@@ -1,11 +1,12 @@
 import React from 'react';
+import { getAssetUrl } from '../utils/asset';
 
 export const Hero: React.FC = () => {
   return (
     <section
       className="hero-section"
       id="hero"
-      style={{ backgroundImage: `url('/assets/images/hero-extrusion-press.jpg')` }}
+      style={{ backgroundImage: `url('${getAssetUrl('assets/images/hero-extrusion-press.jpg')}')` }}
     >
       <div className="hero-overlay"></div>
       <div className="container hero-container">

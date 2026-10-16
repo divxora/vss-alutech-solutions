@@ -1,4 +1,5 @@
 import React from 'react';
+import { getAssetUrl } from '../utils/asset';
 
 interface ToolRoomDiesProps {
   onSelectService: (serviceName: string) => void;
@@ -12,7 +13,7 @@ export const ToolRoomDies: React.FC<ToolRoomDiesProps> = ({ onSelectService }) =
           <div className="service-visual-col">
             <div className="visual-card">
               <img
-                src="/assets/images/toolroom-dies.jpg"
+                src={getAssetUrl('assets/images/toolroom-dies.jpg')}
                 alt="Precision Extrusion Dies, Micrometers, and CNC Wire EDM in Modern Tool Room"
                 className="service-img"
                 loading="lazy"

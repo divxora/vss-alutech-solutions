@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ConsultationFormData } from '../types';
+import { getAssetUrl } from '../utils/asset';
 
 interface ConsultationSectionProps {
   selectedService: string;
@@ -140,7 +141,7 @@ export const ConsultationSection: React.FC<ConsultationSectionProps> = ({
     <section
       className="consultation-section"
       id="consultation"
-      style={{ backgroundImage: `url('/assets/images/factory-dark-bg.jpg')` }}
+      style={{ backgroundImage: `url('${getAssetUrl('assets/images/factory-dark-bg.jpg')}')` }}
     >
       <div className="consultation-overlay"></div>
       <div className="container consultation-container">

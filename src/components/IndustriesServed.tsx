@@ -1,4 +1,5 @@
 import React from 'react';
+import { getAssetUrl } from '../utils/asset';
 
 export const IndustriesServed: React.FC = () => {
   return (
@@ -17,7 +18,7 @@ export const IndustriesServed: React.FC = () => {
           <div className="industry-card">
             <div className="industry-img-wrap">
               <img
-                src="/assets/images/industry-architectural.jpg"
+                src={getAssetUrl('assets/images/industry-architectural.jpg')}
                 alt="Modern Building Facade using Architectural Aluminium Profiles"
                 loading="lazy"
               />
@@ -35,7 +36,7 @@ export const IndustriesServed: React.FC = () => {
           <div className="industry-card">
             <div className="industry-img-wrap">
               <img
-                src="/assets/images/industry-automotive.jpg"
+                src={getAssetUrl('assets/images/industry-automotive.jpg')}
                 alt="Automotive Chassis and Lightweight Structural Components"
                 loading="lazy"
               />
@@ -53,7 +54,7 @@ export const IndustriesServed: React.FC = () => {
           <div className="industry-card">
             <div className="industry-img-wrap">
               <img
-                src="/assets/images/industry-industrial.jpg"
+                src={getAssetUrl('assets/images/industry-industrial.jpg')}
                 alt="Industrial Modular T-slot Aluminium Framing and Automation"
                 loading="lazy"
               />
@@ -71,7 +72,7 @@ export const IndustriesServed: React.FC = () => {
           <div className="industry-card">
             <div className="industry-img-wrap">
               <img
-                src="/assets/images/industry-solar.jpg"
+                src={getAssetUrl('assets/images/industry-solar.jpg')}
                 alt="Solar Panel Mounting Structures and Aluminium Brackets"
                 loading="lazy"
               />
@@ -89,7 +90,7 @@ export const IndustriesServed: React.FC = () => {
           <div className="industry-card">
             <div className="industry-img-wrap">
               <img
-                src="/assets/images/industry-consumer.jpg"
+                src={getAssetUrl('assets/images/industry-consumer.jpg')}
                 alt="Consumer Electronics and Precision Extruded Heat Sinks"
                 loading="lazy"
               />
@@ -107,7 +108,7 @@ export const IndustriesServed: React.FC = () => {
           <div className="industry-card">
             <div className="industry-img-wrap">
               <img
-                src="/assets/images/industry-custom.jpg"
+                src={getAssetUrl('assets/images/industry-custom.jpg')}
                 alt="Complex Custom Aluminium Profile Geometries"
                 loading="lazy"
               />

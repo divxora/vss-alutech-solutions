@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { TonnageRule } from '../types';
+import { getAssetUrl } from '../utils/asset';
 
 interface PressSolutionsProps {
   onSelectService: (serviceName: string) => void;
@@ -144,7 +145,7 @@ export const PressSolutions: React.FC<PressSolutionsProps> = ({
           <div className="service-visual-col">
             <div className="visual-card">
               <img
-                src="/assets/images/hero-extrusion-press.jpg"
+                src={getAssetUrl('assets/images/hero-extrusion-press.jpg')}
                 alt="Aluminium Extrusion Press Machinery in operation with glowing extruded profile"
                 className="service-img"
                 loading="lazy"
