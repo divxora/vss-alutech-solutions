@@ -87,7 +87,7 @@ export const ConsultationSection: React.FC<ConsultationSectionProps> = ({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const newErrors: Record<string, string> = {};
@@ -101,6 +101,16 @@ export const ConsultationSection: React.FC<ConsultationSectionProps> = ({
       return;
     }
 
+    // Get the Supabase anon/publishable key from your Supabase dashboard.
+    // Do not use a service-role key here.
+    const SUPABASE_URL = 'https://cvamnocsfuanbwbljblm.supabase.co';
+    const SUPABASE_ANON_KEY = 'PASTE_YOUR_ANON_KEY_HERE';
+
+    if (SUPABASE_ANON_KEY === 'PASTE_YOUR_ANON_KEY_HERE') {
+      onNotify('Configuration required', 'Add your Supabase anon/publishable key before submitting.', false);
+      return;
+    }
+
     const payload: ConsultationFormData = {
       ...formData,
       attachmentName: attachedFile?.name,
@@ -108,35 +118,62 @@ export const ConsultationSection: React.FC<ConsultationSectionProps> = ({
       submittedAt: new Date().toISOString(),
     };
 
-    console.info('Consultation Form Inquiry Captured (Ready for Backend Integration):', payload);
-
     try {
-      const existingInquiries = JSON.parse(localStorage.getItem('vss_inquiries') || '[]');
-      existingInquiries.push(payload);
-      localStorage.setItem('vss_inquiries', JSON.stringify(existingInquiries));
-    } catch (err) {
-      console.warn('LocalStorage unavailable:', err);
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/submit-enquiry`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          ...payload,
+          customer_name: payload.fullName,
+          company_name: payload.companyName,
+          phone: payload.phoneNumber,
+          email: payload.emailAddress,
+          service_required: payload.serviceRequired,
+          project_stage: payload.projectStage,
+          estimated_requirement: payload.estimatedRequirement,
+          attachment_name: payload.attachmentName ?? null,
+          attachment_size_mb: payload.attachmentSizeMB ?? null,
+          submitted_at: payload.submittedAt,
+        }),
+      });
+
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok || result.success === false || result.error) {
+        throw new Error(result.message || result.error || `Request failed (${response.status})`);
+      }
+
+      setSubmittedData(payload);
+      onNotify('Enquiry submitted', 'Your enquiry was accepted by the server.', true);
+
+      setFormData({
+        fullName: '',
+        companyName: '',
+        phoneNumber: '',
+        emailAddress: '',
+        serviceRequired: '',
+        projectStage: 'Planning New Greenfield Plant',
+        estimatedRequirement: '',
+        message: '',
+      });
+      setAttachedFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      setErrors({});
+    } catch (error) {
+      console.error('Enquiry submission failed:', error);
+      onNotify(
+        'Enquiry not sent',
+        error instanceof Error ? error.message : 'Please try again.',
+        false
+      );
     }
-
-    setSubmittedData(payload);
-    onNotify('Inquiry Form Validated & Logged', `Thank you, ${payload.fullName} (${payload.companyName}).`);
-
-    // Reset form inputs
-    setFormData({
-      fullName: '',
-      companyName: '',
-      phoneNumber: '',
-      emailAddress: '',
-      serviceRequired: '',
-      projectStage: 'Planning New Greenfield Plant',
-      estimatedRequirement: '',
-      message: '',
-    });
-    setAttachedFile(null);
-    if (fileInputRef.current) fileInputRef.current.value = '';
-    setErrors({});
   };
 
+ 
   return (
     <section
       className="consultation-section"
