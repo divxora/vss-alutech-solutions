@@ -19,12 +19,20 @@ import { Modals } from './components/Modals';
 import { BackToTop } from './components/BackToTop';
 import { Toast } from './components/Toast';
 import { ToastMessage } from './types';
+import { AdminLogin } from './components/admin/AdminLogin';
+import { AdminDashboard } from './components/admin/AdminDashboard';
+import { supabase, isSupabaseConfigured } from './utils/supabase';
 
 export const App: React.FC = () => {
   const [activeSection, setActiveSection] = useState<string>('hero');
   const [brochureOpen, setBrochureOpen] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
+
+  // Admin Dashboard State
+  const [adminEmail, setAdminEmail] = useState<string>('');
+  const [adminLoginOpen, setAdminLoginOpen] = useState(false);
+  const [adminDashboardOpen, setAdminDashboardOpen] = useState(false);
 
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [selectedService, setSelectedService] = useState<string>('');
@@ -38,6 +46,46 @@ export const App: React.FC = () => {
   const dismissToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
+
+  // Listen for Supabase Auth state change
+  useEffect(() => {
+    if (isSupabaseConfigured() && supabase) {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user?.email) {
+          setAdminEmail(session.user.email);
+        }
+      });
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (session?.user?.email) {
+          setAdminEmail(session.user.email);
+        } else {
+          setAdminEmail('');
+        }
+      });
+
+      return () => subscription.unsubscribe();
+    }
+  }, []);
+
+  // Listen for URL hash `#admin` or `#admin-login`
+  useEffect(() => {
+    const checkHash = () => {
+      const hash = window.location.hash;
+      if (hash === '#admin') {
+        if (adminEmail) {
+          setAdminDashboardOpen(true);
+        } else {
+          setAdminLoginOpen(true);
+        }
+      } else if (hash === '#admin-login') {
+        setAdminLoginOpen(true);
+      }
+    };
+    checkHash();
+    window.addEventListener('hashchange', checkHash);
+    return () => window.removeEventListener('hashchange', checkHash);
+  }, [adminEmail]);
 
   // IntersectionObserver to sync active nav link
   useEffect(() => {
@@ -110,11 +158,59 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleOpenAdmin = () => {
+    if (adminEmail) {
+      setAdminDashboardOpen(true);
+    } else {
+      setAdminLoginOpen(true);
+    }
+  };
+
+  const handleAdminLoginSuccess = (email: string) => {
+    setAdminEmail(email);
+    setAdminLoginOpen(false);
+    setAdminDashboardOpen(true);
+    addToast('Admin Authenticated', `Welcome, ${email}. Executive portal active.`);
+  };
+
+  const handleLogout = async () => {
+    if (isSupabaseConfigured() && supabase) {
+      await supabase.auth.signOut();
+    }
+    setAdminEmail('');
+    setAdminDashboardOpen(false);
+    addToast('Logged Out', 'Admin session terminated.');
+    if (window.location.hash === '#admin') {
+      window.location.hash = '';
+    }
+  };
+
+  // If Admin Dashboard is active, render the dedicated executive management interface
+  if (adminDashboardOpen) {
+    return (
+      <div className="site-wrapper admin-active-wrapper">
+        <AdminDashboard
+          adminEmail={adminEmail || 'admin@vssalutech.com'}
+          onLogout={handleLogout}
+          onClose={() => {
+            setAdminDashboardOpen(false);
+            if (window.location.hash === '#admin') {
+              window.location.hash = '';
+            }
+          }}
+          onNotify={addToast}
+        />
+        <Toast toasts={toasts} onDismiss={dismissToast} />
+      </div>
+    );
+  }
+
   return (
     <div className="site-wrapper">
       <Header
         onOpenBrochure={() => setBrochureOpen(true)}
         activeSection={activeSection}
+        onOpenAdmin={handleOpenAdmin}
       />
 
       <main>
@@ -145,6 +241,7 @@ export const App: React.FC = () => {
         onOpenBrochure={() => setBrochureOpen(true)}
         onOpenPrivacy={() => setPrivacyOpen(true)}
         onOpenTerms={() => setTermsOpen(true)}
+        onOpenAdmin={handleOpenAdmin}
       />
 
       <Modals
@@ -155,6 +252,18 @@ export const App: React.FC = () => {
         onClosePrivacy={() => setPrivacyOpen(false)}
         onCloseTerms={() => setTermsOpen(false)}
       />
+
+      {adminLoginOpen && (
+        <AdminLogin
+          onSuccess={handleAdminLoginSuccess}
+          onClose={() => {
+            setAdminLoginOpen(false);
+            if (window.location.hash === '#admin-login' || window.location.hash === '#admin') {
+              window.location.hash = '';
+            }
+          }}
+        />
+      )}
 
       <BackToTop />
       <Toast toasts={toasts} onDismiss={dismissToast} />

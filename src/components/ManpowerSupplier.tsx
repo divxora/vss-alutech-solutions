@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ManpowerFormData } from '../types';
 import { getAssetUrl } from '../utils/asset';
+import { enquiryService } from '../services/enquiryService';
 
 interface ManpowerSupplierProps {
   onNotify: (title: string, message: string, isSuccess?: boolean) => void;
@@ -21,7 +22,9 @@ export const ManpowerSupplier: React.FC<ManpowerSupplierProps> = ({ onNotify }) 
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [submittedData, setSubmittedData] = useState<ManpowerFormData | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const phoneRegex = /^[+]?[\d\s\-()]{7,18}$/;
   const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/;
@@ -55,7 +58,7 @@ export const ManpowerSupplier: React.FC<ManpowerSupplierProps> = ({ onNotify }) 
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const newErrors: Record<string, string> = {};
@@ -69,36 +72,55 @@ export const ManpowerSupplier: React.FC<ManpowerSupplierProps> = ({ onNotify }) 
       return;
     }
 
-    const payload: ManpowerFormData = {
-      ...formData,
-      requestedAt: new Date().toISOString(),
-    };
+    setIsSubmitting(true);
+    setSubmitError(null);
+    setSubmitSuccess(null);
 
-    console.info('Manpower Staffing Inquiry Captured:', payload);
+    const messageDetails = `Service: Skilled and contract manpower | Designation: ${formData.designation} | Quantity: ${formData.workersCount} | Skill Level: ${formData.skillLevel} | Shift: ${formData.shift} | Contract Duration: ${formData.duration} | Plant Location: ${formData.location}`;
 
     try {
-      const stored = JSON.parse(localStorage.getItem('vss_manpower_requests') || '[]');
-      stored.push(payload);
-      localStorage.setItem('vss_manpower_requests', JSON.stringify(stored));
-    } catch (err) {
-      console.warn('LocalStorage error:', err);
+      const response = await enquiryService.submitEnquiry({
+        fullName: `${formData.designation} Staffing Lead`,
+        companyName: `Manpower Requirement (${formData.location})`,
+        phoneNumber: formData.phone,
+        emailAddress: formData.email,
+        cityState: formData.location || 'India',
+        country: 'India',
+        serviceCategory: 'Skilled and contract manpower',
+        message: messageDetails,
+      });
+
+      if (response.success) {
+        setSubmitSuccess(
+          `Staffing request confirmed for ${formData.workersCount}x ${formData.designation} in ${formData.location}. Reference: ${response.referenceId || 'Logged'}`
+        );
+        onNotify('Staffing Request Received', `${formData.workersCount}x ${formData.designation} in ${formData.location}`, true);
+
+        // Reset form fields
+        setFormData({
+          designation: '',
+          workersCount: '',
+          skillLevel: '',
+          shift: 'General Shift (Day)',
+          duration: 'Contract (6 Months)',
+          location: '',
+          phone: '',
+          email: '',
+        });
+        setErrors({});
+      } else {
+        const errorMsg = response.message || 'Failed to submit staffing enquiry. Please try again.';
+        setSubmitError(errorMsg);
+        onNotify('Submission Failed', errorMsg, false);
+      }
+    } catch (err: unknown) {
+      const errorMsg =
+        err instanceof Error ? err.message : 'Network error submitting staffing request.';
+      setSubmitError(errorMsg);
+      onNotify('Submission Error', errorMsg, false);
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setSubmittedData(payload);
-    onNotify('Staffing Request Logged', `${payload.workersCount}x ${payload.designation} in ${payload.location}`);
-
-    // Reset form fields
-    setFormData({
-      designation: '',
-      workersCount: '',
-      skillLevel: '',
-      shift: 'General Shift (Day)',
-      duration: 'Contract (6 Months)',
-      location: '',
-      phone: '',
-      email: '',
-    });
-    setErrors({});
   };
 
   return (
@@ -412,17 +434,49 @@ export const ManpowerSupplier: React.FC<ManpowerSupplierProps> = ({ onNotify }) 
                 {errors.email && <div className="field-error visible">{errors.email}</div>}
               </div>
 
-              <button type="submit" className="btn btn-primary btn-block" id="submitManpowerBtn">
-                <span>Request Manpower</span>
-                <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
+              <button
+                type="submit"
+                className="btn btn-primary btn-block"
+                id="submitManpowerBtn"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <span className="spinner-circle"></span>
+                    <span>Submitting Staffing Request...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Request Manpower</span>
+                    <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                  </>
+                )}
               </button>
 
-              {submittedData && (
-                <div className="form-alert success" id="mpFormAlert">
-                  <strong>Staffing Request Received!</strong><br />
-                  We have logged your request for <strong>{submittedData.workersCount}x {submittedData.designation}</strong> in <em>{submittedData.location}</em>.<br />
+              {submitError && (
+                <div
+                  className="form-alert error"
+                  id="mpFormError"
+                  style={{
+                    marginTop: '16px',
+                    background: '#FFF1F2',
+                    color: '#BE123C',
+                    border: '1px solid #FDA4AF',
+                    padding: '12px 16px',
+                    borderRadius: '6px',
+                  }}
+                >
+                  <strong>Submission Failed:</strong><br />
+                  <span>{submitError}</span>
+                </div>
+              )}
+
+              {submitSuccess && (
+                <div className="form-alert success" id="mpFormAlert" style={{ marginTop: '16px' }}>
+                  <strong>Request Transmitted Successfully!</strong><br />
+                  <span>{submitSuccess}</span><br />
                   <small>*Candidate profiles will be matched based on availability and contractual terms.</small>
                 </div>
               )}

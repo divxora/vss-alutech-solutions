@@ -3,9 +3,10 @@ import React, { useState, useEffect } from 'react';
 interface HeaderProps {
   onOpenBrochure: () => void;
   activeSection: string;
+  onOpenAdmin?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenBrochure, activeSection }) => {
+export const Header: React.FC<HeaderProps> = ({ onOpenBrochure, activeSection, onOpenAdmin }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -80,6 +81,18 @@ export const Header: React.FC<HeaderProps> = ({ onOpenBrochure, activeSection })
                   <line x1="9" y1="15" x2="15" y2="15"></line>
                 </svg>
                 <span>Brochure</span>
+              </button>
+              <button
+                type="button"
+                className="utility-btn"
+                onClick={onOpenAdmin}
+                title="Executive B2B Admin Portal"
+                style={{ cursor: 'pointer' }}
+              >
+                <svg className="utility-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                <span>Admin</span>
               </button>
               <a href="#consultation" className="utility-link">Contact</a>
             </div>
@@ -212,6 +225,30 @@ export const Header: React.FC<HeaderProps> = ({ onOpenBrochure, activeSection })
           <li><a href="#process" className="mobile-nav-link" onClick={closeDrawer}>Complete Plant Process</a></li>
           <li><a href="#industries" className="mobile-nav-link" onClick={closeDrawer}>Industries Served</a></li>
           <li><a href="#consultation" className="mobile-nav-link" onClick={closeDrawer}>Consultation Form</a></li>
+          <li>
+            <button
+              type="button"
+              className="mobile-nav-link"
+              style={{
+                background: 'none',
+                border: 'none',
+                width: '100%',
+                textAlign: 'left',
+                cursor: 'pointer',
+                color: 'var(--color-orange)',
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+              }}
+              onClick={() => {
+                closeDrawer();
+                onOpenAdmin?.();
+              }}
+            >
+              <span>🔒 Executive Admin Portal</span>
+            </button>
+          </li>
         </ul>
         <div className="mobile-drawer-footer">
           <a href="#consultation" className="btn btn-primary btn-block" onClick={closeDrawer}>Get a Quote</a>

@@ -35,11 +35,16 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build project
-        run: npm run build
-
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
+      - name: Build project
+        env:
+          VITE_BASE_PATH: '/vss-alutech-solutions/'
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://cvamnocsfuanbwbljblm.supabase.co' }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_SUBMIT_ENQUIRY_URL: ${{ secrets.VITE_SUBMIT_ENQUIRY_URL || 'https://cvamnocsfuanbwbljblm.supabase.co/functions/v1/submit-enquiry' }}
+        run: npm run build
 
       - name: Upload dist artifact
         uses: actions/upload-pages-artifact@v3

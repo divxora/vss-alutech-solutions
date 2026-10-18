@@ -4,12 +4,14 @@ interface FooterProps {
   onOpenBrochure: () => void;
   onOpenPrivacy: () => void;
   onOpenTerms: () => void;
+  onOpenAdmin?: () => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({
   onOpenBrochure,
   onOpenPrivacy,
   onOpenTerms,
+  onOpenAdmin,
 }) => {
   const currentYear = new Date().getFullYear();
 
@@ -130,15 +132,25 @@ export const Footer: React.FC<FooterProps> = ({
           <p className="intended-domain-note">
             Intended Domain: <code>vsslutechsolutions.in</code> (Demonstration &amp; Architecture Prototype)
           </p>
-          <div className="footer-legal-links">
-            <button type="button" className="legal-link-btn" id="openPrivacyModal" onClick={onOpenPrivacy}>
-              Privacy Policy
-            </button>
-            <span className="legal-divider">|</span>
-            <button type="button" className="legal-link-btn" id="openTermsModal" onClick={onOpenTerms}>
-              Terms &amp; Conditions
-            </button>
-          </div>
+            <div className="footer-legal-links">
+              <button type="button" className="legal-link-btn" id="openPrivacyModal" onClick={onOpenPrivacy}>
+                Privacy Policy
+              </button>
+              <span className="legal-divider">|</span>
+              <button type="button" className="legal-link-btn" id="openTermsModal" onClick={onOpenTerms}>
+                Terms &amp; Conditions
+              </button>
+              <span className="legal-divider">|</span>
+              <button
+                type="button"
+                className="legal-link-btn"
+                style={{ color: 'var(--color-orange)', fontWeight: 700 }}
+                onClick={onOpenAdmin}
+                title="Restricted Executive Admin Portal"
+              >
+                🔒 Admin Portal
+              </button>
+            </div>
         </div>
       </div>
     </footer>
