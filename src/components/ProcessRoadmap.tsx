@@ -117,7 +117,7 @@ export const ProcessRoadmap: React.FC = () => {
               </svg>
             </div>
             <h3 className="step-name">Ongoing Technical Support</h3>
-            <p className="step-desc">Routine scrap audits, metallurgical troubleshooting, recovery optimization &amp; plant visits.</p>
+            <p className="step-desc">Routine scrap audits, metallurgical plant maintenance, recovery optimization &amp; plant visits.</p>
           </div>
         </div>
       </div>

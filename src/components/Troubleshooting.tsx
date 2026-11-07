@@ -12,12 +12,12 @@ export const Troubleshooting: React.FC<TroubleshootingProps> = ({ onSelectServic
         <div className="service-detail-grid">
           <div className="service-text-col">
             <div className="section-tag">SERVICE CATEGORY 03</div>
-            <h2 className="service-heading">Plant Troubleshooting &amp; Operational Consultancy</h2>
+            <h2 className="service-heading">Plant Maintenance &amp; Operational Consultancy</h2>
             <p className="service-lead">
               Targeted for existing aluminium extrusion plants dealing with production slowdowns, frequent die chokes, high scrap rates, or surface quality rejects.
             </p>
             <p className="service-body">
-              Extrusion involves dynamic interplay between alloy temperature, container friction, die bearing friction, quench rate, and stretching tension. Our troubleshooting approach diagnoses root causes rather than symptoms.
+              Extrusion involves dynamic interplay between alloy temperature, container friction, die bearing friction, quench rate, and stretching tension. Our plant maintenance approach diagnoses root causes rather than symptoms.
             </p>
 
             <div className="service-feature-list">
@@ -30,7 +30,7 @@ export const Troubleshooting: React.FC<TroubleshootingProps> = ({ onSelectServic
               <div className="feature-item">
                 <span className="feature-bullet">&#9679;</span>
                 <div>
-                  <strong>Process &amp; Quality Defect Troubleshooting:</strong> Systematic elimination of surface tears, die lines, pick-up, blisters, grain boundary sensitization, cross-sectional distortion, and uneven wall thickness.
+                  <strong>Process Maintenance &amp; Defect Rectification:</strong> Systematic elimination of surface tears, die lines, pick-up, blisters, grain boundary sensitization, cross-sectional distortion, and uneven wall thickness.
                 </div>
               </div>
               <div className="feature-item">
@@ -63,10 +63,10 @@ export const Troubleshooting: React.FC<TroubleshootingProps> = ({ onSelectServic
               <a
                 href="#consultation"
                 className="btn btn-primary"
-                data-service="Plant Troubleshooting"
-                onClick={() => onSelectService('Plant Troubleshooting')}
+                data-service="Plant Maintenance"
+                onClick={() => onSelectService('Plant Maintenance')}
               >
-                <span>Discuss Your Plant Problem</span>
+                <span>Discuss Your Plant Maintenance</span>
                 <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <polyline points="9 18 15 12 9 6"></polyline>
                 </svg>
@@ -79,7 +79,7 @@ export const Troubleshooting: React.FC<TroubleshootingProps> = ({ onSelectServic
             <div className="visual-card">
               <img
                 src={getAssetUrl('assets/images/plant-troubleshooting.jpg')}
-                alt="Industrial Engineers Conducting Aluminium Extrusion Plant Troubleshooting and Inspection"
+                alt="Industrial Engineers Conducting Aluminium Extrusion Plant Maintenance and Inspection"
                 className="service-img"
                 loading="lazy"
               />

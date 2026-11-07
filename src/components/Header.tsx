@@ -8,12 +8,26 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ onOpenBrochure, activeSection, onOpenAdmin }) => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [scrollHidden, setScrollHidden] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
+    let lastScrollY = window.scrollY;
+
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 40);
+      const currentScrollY = window.scrollY;
+      setIsScrolled(currentScrollY > 40);
+
+      // Auto-hide header when scrolling down past 120px; smoothly reveal when scrolling up
+      if (currentScrollY > 120 && currentScrollY > lastScrollY + 8) {
+        setScrollHidden(true);
+      } else if (currentScrollY < lastScrollY - 8 || currentScrollY <= 120) {
+        setScrollHidden(false);
+      }
+
+      lastScrollY = currentScrollY <= 0 ? 0 : currentScrollY;
     };
+
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -40,7 +54,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenBrochure, activeSection, o
 
   return (
     <>
-      <header className={`site-header ${isScrolled ? 'scrolled' : ''}`} id="siteHeader">
+      <header
+        className={`site-header ${isScrolled ? 'scrolled' : ''} ${scrollHidden ? 'scroll-hidden' : ''}`}
+        id="siteHeader"
+      >
         <div className="top-utility-bar">
           <div className="container utility-container">
             <div className="utility-left">
@@ -142,7 +159,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenBrochure, activeSection, o
                   href="#plant-troubleshooting"
                   className={`nav-link ${activeSection === 'plant-troubleshooting' ? 'active' : ''}`}
                 >
-                  Plant Troubleshooting
+                  Plant Maintenance
                 </a>
               </li>
               <li>
@@ -159,14 +176,6 @@ export const Header: React.FC<HeaderProps> = ({ onOpenBrochure, activeSection, o
                   className={`nav-link ${activeSection === 'manpower-supplier' ? 'active' : ''}`}
                 >
                   Manpower Supplier
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#alloy-grades"
-                  className={`nav-link ${activeSection === 'alloy-grades' ? 'active' : ''}`}
-                >
-                  Alloy Grades
                 </a>
               </li>
             </ul>
@@ -218,12 +227,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenBrochure, activeSection, o
         <ul className="mobile-nav-links">
           <li><a href="#press-solutions" className="mobile-nav-link" onClick={closeDrawer}>1. Press Solutions</a></li>
           <li><a href="#furnace-solutions" className="mobile-nav-link" onClick={closeDrawer}>2. Furnace Solutions</a></li>
-          <li><a href="#plant-troubleshooting" className="mobile-nav-link" onClick={closeDrawer}>3. Plant Troubleshooting</a></li>
+          <li><a href="#plant-troubleshooting" className="mobile-nav-link" onClick={closeDrawer}>3. Plant Maintenance</a></li>
           <li><a href="#toolroom-dies" className="mobile-nav-link" onClick={closeDrawer}>4. Tool Room &amp; Die Solutions</a></li>
           <li><a href="#manpower-supplier" className="mobile-nav-link" onClick={closeDrawer}>5. Manpower Supplier</a></li>
-          <li><a href="#alloy-grades" className="mobile-nav-link" onClick={closeDrawer}>Aluminium Alloy Grades</a></li>
           <li><a href="#process" className="mobile-nav-link" onClick={closeDrawer}>Complete Plant Process</a></li>
-          <li><a href="#industries" className="mobile-nav-link" onClick={closeDrawer}>Industries Served</a></li>
           <li><a href="#consultation" className="mobile-nav-link" onClick={closeDrawer}>Consultation Form</a></li>
           <li>
             <button

@@ -41,6 +41,7 @@ jobs:
       - name: Build project
         env:
           VITE_BASE_PATH: '/vss-alutech-solutions/'
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://cvamnocsfuanbwbljblm.supabase.co' }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_SUBMIT_ENQUIRY_URL: ${{ secrets.VITE_SUBMIT_ENQUIRY_URL || 'https://cvamnocsfuanbwbljblm.supabase.co/functions/v1/submit-enquiry' }}

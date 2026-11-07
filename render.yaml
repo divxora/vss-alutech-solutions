@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: vss-alutech-backend
+    env: node
+    plan: free
+    region: singapore # Closest to India for minimum latency
+    buildCommand: npm install && npm run build
+    startCommand: npm run server
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: SQLITE_DB_PATH
+        value: data/vss_alutech.sqlite
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 24h
+      - key: ADMIN_DEFAULT_EMAIL
+        value: admin@vsslutechsolutions.in
+      - key: ADMIN_NOTIFICATION_EMAIL
+        value: info@vsslutechsolutions.in
+      # Set your SMTP credentials in the Render dashboard for real email delivery:
+      # - key: SMTP_HOST
+      #   sync: false
+      # - key: SMTP_PORT
+      #   value: 587
+      # - key: SMTP_USER
+      #   sync: false
+      # - key: SMTP_PASS
+      #   sync: false
+      # - key: SMTP_FROM
+      #   value: "VSS Alutech Solutions" <info@vsslutechsolutions.in>
+    disk:
+      name: vss-data
+      mountPath: /app/data
+      sizeGB: 1

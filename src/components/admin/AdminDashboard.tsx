@@ -74,8 +74,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       }
 
       // Service Category
-      if (serviceFilter !== 'all' && !enq.serviceCategory.toLowerCase().includes(serviceFilter.toLowerCase())) {
-        return false;
+      if (serviceFilter !== 'all') {
+        const cat = enq.serviceCategory.toLowerCase();
+        if (serviceFilter === 'maintenance') {
+          if (!cat.includes('maintenance') && !cat.includes('trouble')) {
+            return false;
+          }
+        } else if (!cat.includes(serviceFilter.toLowerCase())) {
+          return false;
+        }
       }
 
       // Urgency
@@ -315,7 +322,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <option value="all">All Service Categories</option>
                 <option value="press">Press Solutions</option>
                 <option value="furnace">Furnace Solutions</option>
-                <option value="trouble">Plant Troubleshooting</option>
+                <option value="maintenance">Plant Maintenance</option>
                 <option value="tool">Tool Room &amp; Dies</option>
                 <option value="manpower">Manpower Supplier</option>
               </select>

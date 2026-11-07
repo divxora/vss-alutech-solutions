@@ -14,7 +14,7 @@ export const StatsPanel: React.FC = () => {
             </div>
             <div className="stat-number">5</div>
             <div className="stat-label">Core Service Categories</div>
-            <p className="stat-detail">Presses, Furnaces, Troubleshooting, Die Sourcing &amp; Manpower</p>
+            <p className="stat-detail">Presses, Furnaces, Plant Maintenance, Die Sourcing &amp; Manpower</p>
           </div>
 
           <div className="stat-card">

@@ -64,6 +64,7 @@ export const ConsultationSection: React.FC<ConsultationSectionProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [attachedFile, setAttachedFile] = useState<{ name: string; sizeMB: string } | null>(null);
+  const [rawFile, setRawFile] = useState<File | null>(null);
 
   const [submissionResult, setSubmissionResult] = useState<{
     referenceId: string;
@@ -86,8 +87,8 @@ export const ConsultationSection: React.FC<ConsultationSectionProps> = ({
         matchedService = 'Aluminium extrusion press solutions';
       } else if (selectedService.toLowerCase().includes('furnace')) {
         matchedService = 'Furnace selection, setup and execution';
-      } else if (selectedService.toLowerCase().includes('trouble')) {
-        matchedService = 'Plant troubleshooting and technical consultancy';
+      } else if (selectedService.toLowerCase().includes('trouble') || selectedService.toLowerCase().includes('maintenance')) {
+        matchedService = 'Plant maintenance and technical consultancy';
       } else if (selectedService.toLowerCase().includes('tool') || selectedService.toLowerCase().includes('die')) {
         matchedService = 'Tool-room solutions and die sourcing';
       } else if (selectedService.toLowerCase().includes('manpower')) {
@@ -154,9 +155,11 @@ export const ConsultationSection: React.FC<ConsultationSectionProps> = ({
       const file = e.target.files[0];
       const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
       setAttachedFile({ name: file.name, sizeMB });
+      setRawFile(file);
       onNotify('Document Attached', `${file.name} (${sizeMB} MB) attached to enquiry.`);
     } else {
       setAttachedFile(null);
+      setRawFile(null);
     }
   };
 
@@ -220,6 +223,7 @@ export const ConsultationSection: React.FC<ConsultationSectionProps> = ({
         additionalNotes: formData.additionalNotes || undefined,
         attachmentName: attachedFile?.name,
         attachmentSizeMB: attachedFile?.sizeMB,
+        rawFile: rawFile || undefined,
         honeypot: formData.honeypot,
         submittedAtClient: new Date().toISOString(),
       });
@@ -263,6 +267,7 @@ export const ConsultationSection: React.FC<ConsultationSectionProps> = ({
           honeypot: '',
         });
         setAttachedFile(null);
+        setRawFile(null);
         if (fileInputRef.current) fileInputRef.current.value = '';
         setErrors({});
         setShowAdvancedSpecs(false);
@@ -301,7 +306,7 @@ export const ConsultationSection: React.FC<ConsultationSectionProps> = ({
             <span className="section-tag light-tag">B2B INDUSTRIAL ENQUIRY</span>
             <h2 className="consultation-heading">Speak with Our Aluminium Extrusion Specialists</h2>
             <p className="consultation-lead">
-              Whether you are evaluating a greenfield plant investment, troubleshooting an active extrusion line, sourcing precision dies, or hiring skilled machine operators, our technical engineering team is ready to assist.
+              Whether you are evaluating a greenfield plant investment, managing plant maintenance for an active extrusion line, sourcing precision dies, or hiring skilled machine operators, our technical engineering team is ready to assist.
             </p>
 
             <div className="consultation-contact-cards">
@@ -576,8 +581,8 @@ export const ConsultationSection: React.FC<ConsultationSectionProps> = ({
                       <option value="Furnace selection, setup and execution">
                         Furnace selection, setup and execution
                       </option>
-                      <option value="Plant troubleshooting and technical consultancy">
-                        Plant troubleshooting and technical consultancy
+                      <option value="Plant maintenance and technical consultancy">
+                        Plant maintenance and technical consultancy
                       </option>
                       <option value="Tool-room solutions and die sourcing">
                         Tool-room solutions and die sourcing
@@ -674,7 +679,7 @@ export const ConsultationSection: React.FC<ConsultationSectionProps> = ({
                             <option value="New Greenfield Plant">New Greenfield Plant</option>
                             <option value="Plant Expansion / Line Addition">Plant Expansion / Line Addition</option>
                             <option value="Machinery Replacement / Modernization">Machinery Replacement / Modernization</option>
-                            <option value="Troubleshooting & Optimization">Troubleshooting &amp; Optimization</option>
+                            <option value="Plant Maintenance & Optimization">Plant Maintenance &amp; Optimization</option>
                             <option value="Die / Tooling Sourcing">Die / Tooling Sourcing</option>
                             <option value="Skilled Manpower Requirement">Skilled Manpower Requirement</option>
                           </select>

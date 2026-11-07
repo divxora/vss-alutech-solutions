@@ -36,7 +36,7 @@ export const Footer: React.FC<FooterProps> = ({
               "Your Partner for Complete Aluminium Extrusion Plant Solutions"
             </p>
             <p className="footer-desc">
-              Technical machinery consultancy, thermal systems advisory, independent tool room die coordination, production troubleshooting, and industrial staffing.
+              Technical machinery consultancy, thermal systems advisory, independent tool room die coordination, plant maintenance, and industrial staffing.
             </p>
             <div className="footer-social-placeholders">
               <span className="social-badge">Industrial B2B Solutions</span>
@@ -50,10 +50,9 @@ export const Footer: React.FC<FooterProps> = ({
             <ul className="footer-links">
               <li><a href="#press-solutions">1. Press Solutions</a></li>
               <li><a href="#furnace-solutions">2. Furnace Solutions</a></li>
-              <li><a href="#plant-troubleshooting">3. Plant Troubleshooting</a></li>
+              <li><a href="#plant-troubleshooting">3. Plant Maintenance</a></li>
               <li><a href="#toolroom-dies">4. Tool Room &amp; Die Solutions</a></li>
               <li><a href="#manpower-supplier">5. Manpower Supplier</a></li>
-              <li><a href="#alloy-grades">6. Supported Alloy Grades</a></li>
               <li><a href="#process">Plant Execution Roadmap</a></li>
             </ul>
           </div>
@@ -64,8 +63,6 @@ export const Footer: React.FC<FooterProps> = ({
             <ul className="footer-links">
               <li><a href="#hero">Home</a></li>
               <li><a href="#service-overview">Services Overview</a></li>
-              <li><a href="#alloy-grades">Alloy Grades We Support</a></li>
-              <li><a href="#industries">Industries Served</a></li>
               <li><a href="#projects">Project Categories</a></li>
               <li><a href="#consultation">Request Consultation</a></li>
               <li>

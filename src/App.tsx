@@ -8,9 +8,7 @@ import { FurnaceSolutions } from './components/FurnaceSolutions';
 import { Troubleshooting } from './components/Troubleshooting';
 import { ToolRoomDies } from './components/ToolRoomDies';
 import { ManpowerSupplier } from './components/ManpowerSupplier';
-import { AlloyGrades } from './components/AlloyGrades';
 import { ProcessRoadmap } from './components/ProcessRoadmap';
-import { IndustriesServed } from './components/IndustriesServed';
 import { FeaturedProjects } from './components/FeaturedProjects';
 import { FaqSection } from './components/FaqSection';
 import { ConsultationSection } from './components/ConsultationSection';
@@ -95,9 +93,7 @@ export const App: React.FC = () => {
       'plant-troubleshooting',
       'toolroom-dies',
       'manpower-supplier',
-      'alloy-grades',
       'process',
-      'industries',
       'projects',
       'faq',
       'consultation',
@@ -134,20 +130,6 @@ export const App: React.FC = () => {
     setSelectedService('Press Solutions');
     setEstimatedRequirement(estimate);
     addToast('Calculator Sizing Applied', 'Transferred parameters to Consultation Form below.');
-    const el = document.getElementById('consultation');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-      setTimeout(() => {
-        const input = document.getElementById('estimatedRequirement');
-        if (input) input.focus();
-      }, 600);
-    }
-  };
-
-  const handleSelectAlloy = (alloyDescription: string) => {
-    setSelectedService('Aluminium Alloy Consultation');
-    setEstimatedRequirement(`Inquiry for: ${alloyDescription}`);
-    addToast('Alloy Grade Selected', `${alloyDescription} added to Consultation Form.`);
     const el = document.getElementById('consultation');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
@@ -225,9 +207,7 @@ export const App: React.FC = () => {
         <Troubleshooting onSelectService={handleSelectService} />
         <ToolRoomDies onSelectService={handleSelectService} />
         <ManpowerSupplier onNotify={addToast} />
-        <AlloyGrades onSelectAlloy={handleSelectAlloy} />
         <ProcessRoadmap />
-        <IndustriesServed />
         <FeaturedProjects />
         <FaqSection />
         <ConsultationSection

@@ -1,6 +1,6 @@
 # VSS Alutech Solutions - React Application
 
-A modern, responsive, and high-performance React (Vite + TypeScript) B2B industrial website for **VSS Alutech Solutions**, an engineering solutions partner specializing in aluminium extrusion plant setup, machinery consultancy, billet heating and ageing furnaces, operational troubleshooting, precision die sourcing, and industrial technical manpower supply.
+A modern, responsive, and high-performance React (Vite + TypeScript) B2B industrial website for **VSS Alutech Solutions**, an engineering solutions partner specializing in aluminium extrusion plant setup, machinery consultancy, billet heating and ageing furnaces, plant maintenance, precision die sourcing, and industrial technical manpower supply.
 
 ---
 
@@ -48,7 +48,7 @@ This project was rewritten into a React application on Vite + TypeScript, preser
         ├── StatsPanel.tsx     # Capabilities and key statistics
         ├── PressSolutions.tsx # Service 1 & Interactive Tonnage Estimator
         ├── FurnaceSolutions.tsx # Service 2: Thermal engineering & ovens
-        ├── Troubleshooting.tsx# Service 3: Plant diagnostics & defect tags
+        ├── Troubleshooting.tsx# Service 3: Plant maintenance & defect rectification
         ├── ToolRoomDies.tsx   # Service 4: 4-step transparent die sourcing workflow
         ├── ManpowerSupplier.tsx# Service 5: Role filter tabs & staffing form
         ├── ProcessRoadmap.tsx # 7-stage project lifecycle roadmap
@@ -60,19 +60,55 @@ This project was rewritten into a React application on Vite + TypeScript, preser
         ├── Modals.tsx         # Brochure, Privacy, and Terms dialogs
         ├── Toast.tsx          # Real-time toast feedback
         └── BackToTop.tsx      # Floating back to top button
+├── server/
+│   ├── app.ts                 # Express application with security, CORS, and parsers
+│   ├── standalone.ts          # Dedicated standalone backend runner
+│   ├── config/                # SQLite database and Nodemailer transporter
+│   ├── controllers/           # Contact, Manpower, Quote, and Admin controllers
+│   ├── middleware/            # Auth (JWT), Upload (Multer), RateLimiter, Validator
+│   ├── models/                # SQLite submission and admin user models
+│   └── routes/                # API routes: contact, manpower, quote, and admin
+├── server.ts                  # Root full-stack entry point (Express API + Vite Dev / Static Bundle)
+└── BACKEND.md                 # Detailed backend documentation and API reference
 ```
 
 ---
 
-## 🚀 Development & Build
+## ⚡ Backend API & Features
+
+The platform includes a complete, production-ready **Node.js, Express, and SQLite** backend:
+
+- **Form Submissions:**
+  - `POST /api/contact` — Handles general business enquiries and technical consultations.
+  - `POST /api/manpower-request` — Structured industrial staffing requisitions (designation, worker count, shift, skill level).
+  - `POST /api/quote-request` — Detailed machinery quotes with multipart CAD / blueprint file uploads (`multer`).
+- **Input Validation & Security:** Sanitized inputs with `express-validator`, protected by `helmet`, `cors`, and `express-rate-limit`.
+- **Nodemailer Automated Email Notifications:**
+  - Instant admin dispatch to `info@vsslutechsolutions.in`.
+  - Auto-acknowledgement receipt to clients with generated tracking reference ID.
+- **Admin Authentication & Dashboard Portal:**
+  - `POST /api/admin/login` — Secure admin login using JWT and `bcryptjs`.
+  - `GET /api/admin/submissions` — Protected view of all form enquiries, manpower requests, and quotes with filtering, search, and pagination.
+  - `DELETE /api/admin/submissions/:id` — Protected route to delete or archive processed inquiries.
+  - `GET /api/admin/download/:id` — Protected CAD/blueprint file download.
+
+---
+
+## 🚀 Running the Project
 
 ```bash
-# Install dependencies
+# 1. Install dependencies
 npm install
 
-# Start dev server on port 3000
+# 2. Run full-stack development server (Express API + Vite frontend on port 3000)
 npm run dev
 
-# Build production bundle
+# 3. Or run standalone backend only (port 5000)
+npm run server
+
+# 4. Production build
 npm run build
+
+# 5. Start production server
+npm start
 ```

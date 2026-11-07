@@ -12,6 +12,7 @@ export type EmailDeliveryStatus = 'pending' | 'sent' | 'failed' | 'skipped';
 export type ServiceCategory =
   | 'Aluminium extrusion press solutions'
   | 'Furnace selection, setup and execution'
+  | 'Plant maintenance and technical consultancy'
   | 'Plant troubleshooting and technical consultancy'
   | 'Tool-room solutions and die sourcing'
   | 'Skilled and contract manpower'
@@ -21,6 +22,7 @@ export type ProjectStage =
   | 'New Greenfield Plant'
   | 'Plant Expansion / Line Addition'
   | 'Machinery Replacement / Modernization'
+  | 'Plant Maintenance & Optimization'
   | 'Troubleshooting & Optimization'
   | 'Die / Tooling Sourcing'
   | 'Skilled Manpower Requirement';
@@ -101,6 +103,7 @@ export interface EnquirySubmissionPayload {
   additionalNotes?: string;
   attachmentName?: string;
   attachmentSizeMB?: string;
+  rawFile?: File;
   honeypot?: string; // Bot protection
   submittedAtClient?: string;
 }

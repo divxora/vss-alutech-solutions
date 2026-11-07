@@ -21,7 +21,7 @@ export const Hero: React.FC = () => {
           </h1>
 
           <p className="hero-subtext">
-            From machinery selection and plant setup to technical troubleshooting, die sourcing and skilled manpower — your complete partner for aluminium extrusion operations.
+            From machinery selection and plant setup to plant maintenance, die sourcing and skilled manpower — your complete partner for aluminium extrusion operations.
           </p>
 
           {/* 5 Compact Service Highlights */}

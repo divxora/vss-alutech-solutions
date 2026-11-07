@@ -13,7 +13,7 @@ export const ServiceOverview: React.FC = () => {
           </p>
         </div>
 
-        <div className="cards-grid-six">
+        <div className="cards-grid-five">
           {/* Card 1 */}
           <a
             href="#press-solutions"
@@ -56,16 +56,16 @@ export const ServiceOverview: React.FC = () => {
 
           {/* Card 3 */}
           <a
-            href="#alloy-grades"
+            href="#plant-troubleshooting"
             className="image-service-card"
-            style={{ backgroundImage: `url('${getAssetUrl('assets/images/profiles-billets.jpg')}')` }}
+            style={{ backgroundImage: `url('${getAssetUrl('assets/images/plant-troubleshooting.jpg')}')` }}
           >
             <div className="card-gradient"></div>
             <div className="card-content">
               <span className="card-number">03</span>
-              <h3 className="card-title">Alloy Grades &amp; Billets</h3>
-              <p className="card-desc">7 standard series, 20 legacy codes, extrusion recipes, and yield optimization advice.</p>
-              <div className="card-arrow" aria-label="Explore Alloy Grades & Billets">
+              <h3 className="card-title">Plant Maintenance</h3>
+              <p className="card-desc">Extrusion press console diagnostics, defect elimination, and cycle-time balancing.</p>
+              <div className="card-arrow" aria-label="Explore Plant Maintenance">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <line x1="5" y1="12" x2="19" y2="12" />
                   <polyline points="12 5 19 12 12 19" />
@@ -76,33 +76,13 @@ export const ServiceOverview: React.FC = () => {
 
           {/* Card 4 */}
           <a
-            href="#plant-troubleshooting"
-            className="image-service-card"
-            style={{ backgroundImage: `url('${getAssetUrl('assets/images/plant-troubleshooting.jpg')}')` }}
-          >
-            <div className="card-gradient"></div>
-            <div className="card-content">
-              <span className="card-number">04</span>
-              <h3 className="card-title">Plant Troubleshooting</h3>
-              <p className="card-desc">Extrusion press console diagnostics, defect elimination, and cycle-time balancing.</p>
-              <div className="card-arrow" aria-label="Explore Plant Troubleshooting">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                  <polyline points="12 5 19 12 12 19" />
-                </svg>
-              </div>
-            </div>
-          </a>
-
-          {/* Card 5 */}
-          <a
             href="#toolroom-dies"
             className="image-service-card"
             style={{ backgroundImage: `url('${getAssetUrl('assets/images/toolroom-dies.jpg')}')` }}
           >
             <div className="card-gradient"></div>
             <div className="card-content">
-              <span className="card-number">05</span>
+              <span className="card-number">04</span>
               <h3 className="card-title">Tool Room &amp; Dies</h3>
               <p className="card-desc">Independent tool room sourcing, die trial review, and profile design.</p>
               <div className="card-arrow" aria-label="Explore Tool Room & Dies">
@@ -114,7 +94,7 @@ export const ServiceOverview: React.FC = () => {
             </div>
           </a>
 
-          {/* Card 6 */}
+          {/* Card 5 */}
           <a
             href="#manpower-supplier"
             className="image-service-card"
@@ -122,7 +102,7 @@ export const ServiceOverview: React.FC = () => {
           >
             <div className="card-gradient"></div>
             <div className="card-content">
-              <span className="card-number">06</span>
+              <span className="card-number">05</span>
               <h3 className="card-title">Manpower Supply</h3>
               <p className="card-desc">Contract staffing: plant heads, press operators, and technicians.</p>
               <div className="card-arrow" aria-label="Explore Manpower Supply">

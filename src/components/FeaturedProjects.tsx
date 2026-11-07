@@ -69,7 +69,7 @@ export const FeaturedProjects: React.FC = () => {
                 Comprehensive cycle-time audit for architectural hollow profile manufacturing, eliminating runout pinch-point bottlenecks.
               </p>
               <div className="project-meta">
-                <span>Scope: Plant Troubleshooting &amp; Recovery</span>
+                <span>Scope: Plant Maintenance &amp; Recovery</span>
               </div>
             </div>
           </div>

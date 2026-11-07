@@ -15,9 +15,9 @@ const FAQS = [
   },
   {
     id: 3,
-    question: 'What is the typical operational scope of Plant Troubleshooting?',
+    question: 'What is the typical operational scope of Plant Maintenance?',
     answer:
-      'Our plant troubleshooting covers both mechanical and metallurgical challenges: hydraulic pressure fluctuations, container misalignment, profile surface tearing, die lines, extrusion blisters, grain boundary sensitization, and quench table warping. We conduct on-site diagnostics, review log heating and ageing oven temperature profiles, and establish standard operating procedures (SOPs) to reduce scrap rates and boost recovery.',
+      'Our plant maintenance covers both mechanical and metallurgical challenges: hydraulic pressure fluctuations, container misalignment, profile surface tearing, die lines, extrusion blisters, grain boundary sensitization, and quench table warping. We conduct on-site diagnostics, review log heating and ageing oven temperature profiles, and establish standard operating procedures (SOPs) to reduce scrap rates and boost recovery.',
   },
   {
     id: 4,
@@ -47,7 +47,7 @@ export const FaqSection: React.FC = () => {
           <span className="section-tag">COMMON INQUIRIES</span>
           <h2 className="section-title">Frequently Asked Questions</h2>
           <p className="section-subtitle">
-            Clear technical insights on our machinery consultancy, die sourcing workflow, plant troubleshooting, and manpower placement.
+            Clear technical insights on our machinery consultancy, die sourcing workflow, plant maintenance, and manpower placement.
           </p>
         </div>
 
