@@ -11,16 +11,21 @@ const ACTIVITIES_STORAGE_KEY = 'vss_alutech_b2b_activities_v1';
 const ADMIN_TOKEN_KEY = 'vss_alutech_admin_jwt_token';
 
 /**
+ * Live Production Backend URL on Render
+ */
+export const LIVE_RENDER_BACKEND = 'https://vss-alutech-backend.onrender.com';
+
+/**
  * Determine dynamic API Base URL
  */
 export const getBackendApiUrl = (): string => {
-  // 1. Explicitly configured VITE_API_BASE_URL (used for GitHub Pages -> External Cloud Backend)
+  // 1. Explicitly configured VITE_API_BASE_URL (if overridden via env)
   if (import.meta.env.VITE_API_BASE_URL) {
     return String(import.meta.env.VITE_API_BASE_URL).replace(/\/+$/, '');
   }
 
-  // 2. Default: relative path for all same-host deployments (dev server, Cloud Run, custom domain)
-  return '';
+  // 2. Default: Live Render Production Backend
+  return LIVE_RENDER_BACKEND;
 };
 
 // Clean, production-ready storage (no dummy or fake initial enquiries)
