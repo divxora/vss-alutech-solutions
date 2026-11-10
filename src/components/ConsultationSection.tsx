@@ -14,7 +14,6 @@ import {
   openWhatsAppDirectly,
   VSS_PRIMARY_WHATSAPP,
   VSS_DISPLAY_PHONE_1,
-  VSS_DISPLAY_PHONE_2,
 } from '../utils/whatsapp';
 
 interface ConsultationSectionProps {
