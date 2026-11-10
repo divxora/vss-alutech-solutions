@@ -5,7 +5,6 @@ import {
   EnquiryStatus,
   EnquiryActivity,
 } from '../types';
-import { supabase, isSupabaseConfigured } from '../utils/supabase';
 
 const STORAGE_KEY = 'vss_alutech_b2b_enquiries_v1';
 const ACTIVITIES_STORAGE_KEY = 'vss_alutech_b2b_activities_v1';
@@ -15,134 +14,44 @@ const ADMIN_TOKEN_KEY = 'vss_alutech_admin_jwt_token';
  * Determine dynamic API Base URL
  */
 export const getBackendApiUrl = (): string => {
-  // 1. Explicitly configured VITE_API_BASE_URL (used for GitHub Pages -> External Backend)
+  // 1. Explicitly configured VITE_API_BASE_URL (used for GitHub Pages -> External Cloud Backend)
   if (import.meta.env.VITE_API_BASE_URL) {
     return String(import.meta.env.VITE_API_BASE_URL).replace(/\/+$/, '');
   }
 
-  // 2. In browser window: if on localhost or Cloud Run, use current origin
-  if (typeof window !== 'undefined') {
-    const origin = window.location.origin;
-    if (origin.includes('localhost') || origin.includes('127.0.0.1') || origin.includes('run.app')) {
-      return origin;
-    }
-  }
-
+  // 2. Default: relative path for all same-host deployments (dev server, Cloud Run, custom domain)
   return '';
 };
 
-// Seed realistic B2B initial sample enquiries if storage is empty
-const INITIAL_DEMO_ENQUIRIES: Enquiry[] = [
-  {
-    id: '1',
-    referenceId: 'VSS-CNT-2026-X9K201',
-    fullName: 'Rajesh Sharma',
-    companyName: 'Apex Extrusions Pvt Ltd',
-    phoneNumber: '+91 98201 44552',
-    emailAddress: 'r.sharma@apexextrusions.in',
-    cityState: 'Pune, Maharashtra',
-    country: 'India',
-    serviceCategory: 'Aluminium extrusion press solutions',
-    plantLocation: 'Chakan MIDC Phase 2, Pune',
-    machineryRequired: '1450 UST Extrusion Press with Puller and Handling Table',
-    pressCapacity: '1450 UST (7-inch container)',
-    technicalSpecs: 'Architectural 6063-T6 sections, monthly target 250 MT. Requirement for hot shear and runout cooling table.',
-    approxBudget: '₹2.5 Cr - ₹3.2 Cr',
-    projectStage: 'Plant Expansion / Line Addition',
-    timelineUrgency: '1 to 3 Months',
-    preferredContact: 'WhatsApp',
-    message: 'We are expanding our existing line and need guidance on selecting either a new or refurbished 1450 UST direct extrusion press with complete handling system.',
-    additionalNotes: 'Need factory inspection in early November.',
-    status: 'in_review',
-    adminNotes: 'Spoke with Director Mr. Sharma. Shared press layout drawings. Site visit scheduled.',
-    emailStatus: 'sent',
-    emailSentAt: '2026-10-14T09:30:00Z',
-    createdAt: '2026-10-14T09:28:15Z',
-    updatedAt: '2026-10-14T11:45:00Z',
-  },
-  {
-    id: '2',
-    referenceId: 'VSS-CNT-2026-F4N812',
-    fullName: 'Vikram Mehta',
-    companyName: 'Gujarat Aluminium Profiles',
-    phoneNumber: '+91 97129 88300',
-    emailAddress: 'vikram@gujaratprofiles.com',
-    cityState: 'Vadodara, Gujarat',
-    country: 'India',
-    serviceCategory: 'Furnace selection, setup and execution',
-    plantLocation: 'Savli GIDC, Vadodara',
-    machineryRequired: 'LPG Gas-Fired Rapid Billet Heater with Hot Log Shear',
-    pressCapacity: 'For 1100 UST Press (5-inch & 6-inch logs)',
-    technicalSpecs: 'Need high thermal efficiency to reduce specific fuel consumption below 35 kg LPG/MT.',
-    approxBudget: '₹45 Lakhs - ₹60 Lakhs',
-    projectStage: 'Machinery Replacement / Modernization',
-    timelineUrgency: 'Immediate (Within 1-2 weeks)',
-    preferredContact: 'Phone Call',
-    message: 'Current furnace has high scale loss and temperature gradient across billets. Urgent engineering visit required to assess burner overhaul or replacement.',
-    status: 'new',
-    emailStatus: 'sent',
-    emailSentAt: '2026-10-15T08:15:00Z',
-    createdAt: '2026-10-15T08:12:00Z',
-    updatedAt: '2026-10-15T08:15:00Z',
-  },
-  {
-    id: '3',
-    referenceId: 'VSS-CNT-2026-M2L903',
-    fullName: 'Suresh Patil',
-    companyName: 'Kolhapur Extrusion Mills',
-    phoneNumber: '+91 98220 12345',
-    emailAddress: 'suresh@kolhapurextrusions.in',
-    cityState: 'Kolhapur, Maharashtra',
-    country: 'India',
-    serviceCategory: 'Plant maintenance and technical consultancy',
-    plantLocation: 'Shiroli MIDC, Kolhapur',
-    machineryRequired: 'Press hydraulic and container alignment diagnosis',
-    pressCapacity: '900 UST Press',
-    technicalSpecs: 'Frequent die choking on thin-wall architectural profiles. Container temperature drop suspected.',
-    approxBudget: '₹8 Lakhs - ₹12 Lakhs',
-    projectStage: 'Plant Maintenance & Optimization',
-    timelineUrgency: 'Immediate (Within 1-2 weeks)',
-    preferredContact: 'WhatsApp',
-    message: 'We are facing high profile distortion and cycle-time lag on our 900 UST press line. Need senior consultant for container alignment check and hydraulic pressure calibration.',
-    status: 'in_review',
-    emailStatus: 'sent',
-    emailSentAt: '2026-10-16T14:10:00Z',
-    createdAt: '2026-10-16T14:05:00Z',
-    updatedAt: '2026-10-16T14:10:00Z',
-  },
-];
-
-const INITIAL_DEMO_ACTIVITIES: EnquiryActivity[] = [
-  {
-    id: 'act-001',
-    enquiryId: '1',
-    action: 'Enquiry Registered',
-    details: { service: 'Aluminium extrusion press solutions' },
-    performedBy: 'System Web Form',
-    createdAt: '2026-10-14T09:28:15Z',
-  },
-  {
-    id: 'act-002',
-    enquiryId: '1',
-    action: 'Notification Dispatched',
-    details: { recipient: 'info@vsslutechsolutions.in' },
-    performedBy: 'Nodemailer Dispatcher',
-    createdAt: '2026-10-14T09:30:00Z',
-  },
-];
+// Clean, production-ready storage (no dummy or fake initial enquiries)
+const INITIAL_DEMO_ACTIVITIES: EnquiryActivity[] = [];
 
 // Helper to access LocalStorage safely
 const getStoredEnquiries = (): Enquiry[] => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_DEMO_ENQUIRIES));
-      return INITIAL_DEMO_ENQUIRIES;
+    if (!raw) return [];
+
+    const parsed = JSON.parse(raw);
+    // Purge legacy hardcoded demo requests if found in browser storage
+    if (
+      Array.isArray(parsed) &&
+      parsed.some(
+        (e: any) =>
+          e.referenceId === 'VSS-CNT-2026-X9K201' ||
+          e.companyName?.includes('Apex Extrusions') ||
+          e.companyName?.includes('Gujarat Aluminium') ||
+          e.companyName?.includes('Kolhapur Extrusion')
+      )
+    ) {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(ACTIVITIES_STORAGE_KEY);
+      return [];
     }
-    return JSON.parse(raw);
+
+    return Array.isArray(parsed) ? parsed : [];
   } catch (err) {
-    console.warn('LocalStorage error:', err);
-    return INITIAL_DEMO_ENQUIRIES;
+    return [];
   }
 };
 
@@ -271,18 +180,32 @@ export const enquiryService = {
       payload.serviceCategory?.toLowerCase().includes('staffing');
 
     if (isManpower) {
+      // Parse structured details if present in payload message or fields
+      const qtyMatch = payload.message?.match(/Quantity:\s*(\d+)/i);
+      const workerCount = qtyMatch ? parseInt(qtyMatch[1], 10) : 1;
+      const shiftMatch = payload.message?.match(/Shift:\s*([^|]+)/i);
+      const shiftDetails = shiftMatch ? shiftMatch[1].trim() : 'Single Day Shift';
+      const skillMatch = payload.message?.match(/Skill Level:\s*([^|]+)/i);
+      const skillLevel = skillMatch ? skillMatch[1].trim() : 'Skilled';
+      const desigMatch = payload.message?.match(/Designation:\s*([^|]+)/i);
+      const designation =
+        payload.machineryRequired ||
+        (desigMatch ? desigMatch[1].trim() : '') ||
+        (payload.fullName?.includes('Staffing Lead') ? payload.fullName.replace('Staffing Lead', '').trim() : '') ||
+        'Extrusion Press Operator';
+
       const body = {
-        name: fullName,
+        name: fullName || 'Industrial Client',
         email: businessEmail,
         phone: mobileNumber,
-        company: companyName,
-        plantLocation: payload.plantLocation || payload.cityState,
-        designation: payload.machineryRequired || 'Extrusion Press Operator',
-        workerCount: 1,
-        skillLevel: 'Skilled',
-        shiftDetails: 'Single Day Shift',
+        company: companyName || 'Aluminium Manufacturing Plant',
+        plantLocation: payload.plantLocation || payload.cityState || 'India',
+        designation,
+        workerCount,
+        skillLevel,
+        shiftDetails,
         requirementUrgency: payload.timelineUrgency || 'Standard (1-2 weeks)',
-        notes: payload.message,
+        notes: payload.message || '',
       };
 
       try {
@@ -299,7 +222,7 @@ export const enquiryService = {
             success: true,
             referenceId: refId,
             emailStatus: 'sent',
-            message: data.message || 'Your staffing request has been received.',
+            message: data.message || 'Your industrial staffing request has been successfully registered.',
           };
         }
 
@@ -309,8 +232,17 @@ export const enquiryService = {
             message: data.validationErrors.map((e: any) => e.message).join(' ') || data.error,
           };
         }
-      } catch (err) {
-        console.error('Error submitting manpower request to backend:', err);
+
+        return {
+          success: false,
+          message: data.error || `Server responded with error (${res.status}).`,
+        };
+      } catch (err: any) {
+        console.warn('Network issue submitting manpower request:', err?.message || err);
+        return {
+          success: false,
+          message: 'Unable to reach the staffing request server. Please verify network connectivity.',
+        };
       }
     }
 
@@ -358,46 +290,18 @@ export const enquiryService = {
       if (data.error) {
         return { success: false, message: data.error };
       }
+
+      return {
+        success: false,
+        message: `Server responded with error (${res.status}).`,
+      };
     } catch (netErr: any) {
-      console.warn('Backend API connection failed, attempting fallback:', netErr.message);
+      console.warn('Backend API connection issue:', netErr?.message || netErr);
+      return {
+        success: false,
+        message: 'Could not connect to the VSS Alutech backend server. Please verify your connection or backend URL.',
+      };
     }
-
-    // Fallback: If external Supabase Edge Function is configured, try it
-    if (isSupabaseConfigured() && supabase) {
-      try {
-        const edgeFunctionUrl = 'https://cvamnocsfuanbwbljblm.supabase.co/functions/v1/submit-enquiry';
-        const res = await fetch(edgeFunctionUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: fullName,
-            email: businessEmail,
-            phone: mobileNumber,
-            company: companyName,
-            message: payload.message,
-          }),
-        });
-
-        if (res.ok) {
-          const result = await res.json().catch(() => ({}));
-          return {
-            success: true,
-            referenceId: result.referenceId || `VSS-${Date.now().toString().slice(-6)}`,
-            emailStatus: 'sent',
-            message: 'Your enquiry has been successfully submitted and saved.',
-          };
-        }
-      } catch (e) {
-        // Continue to offline warning
-      }
-    }
-
-    // If completely offline or GitHub Pages without configured backend URL:
-    return {
-      success: false,
-      message:
-        'Could not connect to the VSS Alutech backend server. Please verify your internet connection or backend URL configuration.',
-    };
   },
 
   /**
@@ -531,7 +435,7 @@ export const enquiryService = {
   async updateStatus(
     id: string,
     status: EnquiryStatus,
-    adminEmail = 'admin@vsslutechsolutions.in'
+    adminEmail = 'vssalutechsolutions@gmail.com'
   ): Promise<boolean> {
     const activeToken = this.getStoredToken();
     const apiBase = getBackendApiUrl();
@@ -578,7 +482,7 @@ export const enquiryService = {
   async updateNotes(
     id: string,
     notes: string,
-    adminEmail = 'admin@vsslutechsolutions.in'
+    adminEmail = 'vssalutechsolutions@gmail.com'
   ): Promise<boolean> {
     const activeToken = this.getStoredToken();
     const apiBase = getBackendApiUrl();
@@ -724,5 +628,40 @@ export const enquiryService = {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  },
+
+  /**
+   * Admin: Clear all submissions from backend and purge local cache
+   */
+  async clearAllSubmissions(token?: string): Promise<{ success: boolean; count?: number; error?: string }> {
+    const activeToken = token || this.getStoredToken();
+    const apiBase = getBackendApiUrl();
+
+    // Clear local storage
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(ACTIVITIES_STORAGE_KEY);
+    } catch (e) {
+      // ignore
+    }
+
+    if (activeToken) {
+      try {
+        const res = await fetch(`${apiBase}/api/admin/submissions/clear-all`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${activeToken}`,
+          },
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.success) {
+          return { success: true, count: data.count || 0 };
+        }
+      } catch (err: any) {
+        console.warn('Backend clear-all failed:', err);
+      }
+    }
+
+    return { success: true, count: 0 };
   },
 };

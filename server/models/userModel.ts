@@ -55,7 +55,7 @@ export const userModel = {
    */
   seedDefaultAdmin(): void {
     if (!this.hasAdminUsers()) {
-      const defaultEmail = process.env.ADMIN_DEFAULT_EMAIL || 'admin@vsslutechsolutions.in';
+      const defaultEmail = process.env.ADMIN_DEFAULT_EMAIL || 'vssalutechsolutions@gmail.com';
       const defaultPass = process.env.ADMIN_DEFAULT_PASSWORD;
       if (defaultPass) {
         this.createAdminUser(defaultEmail, defaultPass, 'VSS Plant Administrator', 'superadmin');

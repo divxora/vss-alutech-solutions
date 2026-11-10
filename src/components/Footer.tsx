@@ -93,28 +93,15 @@ export const Footer: React.FC<FooterProps> = ({
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                 <polyline points="22,6 12,13 2,6" />
               </svg>
-              <a href="mailto:info@vsslutechsolutions.in">info@vsslutechsolutions.in</a>
+              <a href="mailto:vssalutechsolutions@gmail.com">vssalutechsolutions@gmail.com</a>
             </div>
             <div className="footer-contact-item">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
               </svg>
-              <a href="tel:+910000000000">+91 [Phone Placeholder]</a>
-            </div>
-
-            <div className="footer-whatsapp-wrap">
-              <a
-                href="#consultation"
-                className="btn btn-whatsapp"
-                id="footerWhatsappBtn"
-                title="Connect on WhatsApp (Placeholder)"
-              >
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.694.062-2.126-.532-1.745-.724-2.883-2.502-2.97-2.617-.087-.116-.708-.941-.708-1.792s.448-1.271.607-1.445c.16-.175.348-.219.463-.219.116 0 .232.001.333.006.107.005.25.04.391.377.145.348.493 1.203.536 1.29.043.087.072.189.014.305-.058.115-.087.188-.174.29-.087.102-.183.228-.261.306-.087.087-.179.182-.077.357.101.174.45 1.018 1.054 1.554.778.691 1.433.906 1.636 1.008.203.101.319.087.435-.044.116-.13.493-.58.623-.782.13-.203.261-.174.435-.102.174.072 1.102.52 1.29.614.189.094.316.14.362.217.046.077.046.448-.098.853z" />
-                </svg>
-                <span>WhatsApp Chat</span>
-                <span className="placeholder-tag">[Placeholder]</span>
-              </a>
+              <div>
+                <a href="tel:+919517098011">+91 9517098011</a>
+              </div>
             </div>
           </div>
         </div>

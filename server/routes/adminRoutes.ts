@@ -7,6 +7,7 @@ import {
   handleGetSubmissionById,
   handleUpdateSubmissionStatus,
   handleDeleteSubmission,
+  handleClearAllSubmissions,
   handleDownloadAttachment,
 } from '../controllers/adminController';
 import { validateAdminLogin } from '../middleware/validator';
@@ -23,6 +24,10 @@ router.post('/setup', loginLimiter, handleSetupAdmin);
 
 // POST /api/admin/login - Secure login returning JWT
 router.post('/login', loginLimiter, validateAdminLogin, handleAdminLogin);
+
+// DELETE /api/admin/submissions/clear-all - Purge all submissions from portal
+router.delete('/submissions/clear-all', authenticateAdmin, handleClearAllSubmissions);
+router.post('/submissions/clear-all', authenticateAdmin, handleClearAllSubmissions);
 
 // GET /api/admin/submissions - Protected route to view all submissions
 router.get('/submissions', authenticateAdmin, handleGetSubmissions);

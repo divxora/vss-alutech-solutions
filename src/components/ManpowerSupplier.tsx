@@ -2,6 +2,12 @@ import React, { useState } from 'react';
 import { ManpowerFormData } from '../types';
 import { getAssetUrl } from '../utils/asset';
 import { enquiryService } from '../services/enquiryService';
+import {
+  formatWhatsAppEnquiryMessage,
+  buildWhatsAppUrl,
+  openWhatsAppDirectly,
+  VSS_PRIMARY_WHATSAPP,
+} from '../utils/whatsapp';
 
 interface ManpowerSupplierProps {
   onNotify: (title: string, message: string, isSuccess?: boolean) => void;
@@ -25,6 +31,7 @@ export const ManpowerSupplier: React.FC<ManpowerSupplierProps> = ({ onNotify }) 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [whatsAppUrl, setWhatsAppUrl] = useState<string | null>(null);
 
   const phoneRegex = /^[+]?[\d\s\-()]{7,18}$/;
   const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/;
@@ -90,11 +97,36 @@ export const ManpowerSupplier: React.FC<ManpowerSupplierProps> = ({ onNotify }) 
         message: messageDetails,
       });
 
-      if (response.success) {
+      if (response.success && response.referenceId) {
+        // Build complete structured WhatsApp message
+        const waText = formatWhatsAppEnquiryMessage({
+          referenceId: response.referenceId,
+          type: 'Industrial Manpower Request',
+          fullName: `Staffing Lead (${formData.location})`,
+          companyName: `Extrusion Plant (${formData.location})`,
+          phone: formData.phone,
+          email: formData.email,
+          location: formData.location,
+          serviceCategory: 'Skilled and contract manpower',
+          timelineUrgency: formData.duration,
+          technicalSpecs: `${formData.workersCount}x ${formData.designation} (${formData.skillLevel}, Shift: ${formData.shift})`,
+          message: `Manpower Staffing Request: ${formData.workersCount}x ${formData.designation}. Skill: ${formData.skillLevel}. Shift: ${formData.shift}. Contract duration: ${formData.duration}. Plant location: ${formData.location}.`,
+        });
+
+        const waUrl = buildWhatsAppUrl(waText, VSS_PRIMARY_WHATSAPP);
+        setWhatsAppUrl(waUrl);
+
+        // Open WhatsApp directly with complete information
+        openWhatsAppDirectly(waText, VSS_PRIMARY_WHATSAPP);
+
         setSubmitSuccess(
-          `Staffing request confirmed for ${formData.workersCount}x ${formData.designation} in ${formData.location}. Reference: ${response.referenceId || 'Logged'}`
+          `Staffing request confirmed for ${formData.workersCount}x ${formData.designation} in ${formData.location}. Reference: ${response.referenceId}`
         );
-        onNotify('Staffing Request Received', `${formData.workersCount}x ${formData.designation} in ${formData.location}`, true);
+        onNotify(
+          'Staffing Request Registered',
+          `Reference ${response.referenceId} saved in Admin Portal. Complete details opened in WhatsApp.`,
+          true
+        );
 
         // Reset form fields
         setFormData({
@@ -412,7 +444,7 @@ export const ManpowerSupplier: React.FC<ManpowerSupplierProps> = ({ onNotify }) 
                     value={formData.phone}
                     onChange={handleChange}
                     className={errors.phone ? 'is-invalid' : ''}
-                    placeholder="+91 XXXXX XXXXX"
+                    placeholder="+91 9517098011"
                     required
                   />
                   {errors.phone && <div className="field-error visible">{errors.phone}</div>}
@@ -436,21 +468,30 @@ export const ManpowerSupplier: React.FC<ManpowerSupplierProps> = ({ onNotify }) 
 
               <button
                 type="submit"
-                className="btn btn-primary btn-block"
+                className="btn btn-primary btn-block btn-lg"
                 id="submitManpowerBtn"
                 disabled={isSubmitting}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '10px',
+                  background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+                  border: 'none',
+                  boxShadow: '0 4px 14px rgba(249, 115, 22, 0.35)',
+                }}
               >
                 {isSubmitting ? (
                   <>
                     <span className="spinner-circle"></span>
-                    <span>Submitting Staffing Request...</span>
+                    <span>Saving to Portal &amp; Launching WhatsApp...</span>
                   </>
                 ) : (
                   <>
-                    <span>Request Manpower</span>
-                    <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <polyline points="9 18 15 12 9 6"></polyline>
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
                     </svg>
+                    <span>Submit Request &amp; Send to WhatsApp</span>
                   </>
                 )}
               </button>
@@ -477,7 +518,33 @@ export const ManpowerSupplier: React.FC<ManpowerSupplierProps> = ({ onNotify }) 
                 <div className="form-alert success" id="mpFormAlert" style={{ marginTop: '16px' }}>
                   <strong>Request Transmitted Successfully!</strong><br />
                   <span>{submitSuccess}</span><br />
-                  <small>*Candidate profiles will be matched based on availability and contractual terms.</small>
+                  <small>*Logged in Admin Portal with real-time tracking.</small>
+                  {whatsAppUrl && (
+                    <div style={{ marginTop: '12px' }}>
+                      <a
+                        href={whatsAppUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-whatsapp-direct"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          backgroundColor: '#25D366',
+                          color: '#ffffff',
+                          fontWeight: '600',
+                          padding: '10px 18px',
+                          borderRadius: '6px',
+                          textDecoration: 'none',
+                        }}
+                      >
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                        </svg>
+                        <span>Send via WhatsApp Directly</span>
+                      </a>
+                    </div>
+                  )}
                 </div>
               )}
             </form>

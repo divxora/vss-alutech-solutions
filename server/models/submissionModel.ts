@@ -258,6 +258,22 @@ export const submissionModel = {
   },
 
   /**
+   * Clear all submissions (used by administrator to purge test/dummy data)
+   */
+  clearAll(performedBy = 'admin'): number {
+    const totalStmt = db.prepare('SELECT COUNT(*) as count FROM submissions');
+    const total = (totalStmt.get() as { count: number })?.count || 0;
+    try {
+      db.exec('DELETE FROM audit_logs;');
+      db.exec('DELETE FROM submissions;');
+      console.log(`[SubmissionModel] Cleared all ${total} submissions by ${performedBy}`);
+    } catch (e: any) {
+      console.warn('[SubmissionModel] Error clearing submissions:', e.message);
+    }
+    return total;
+  },
+
+  /**
    * Summary counts for dashboard metrics
    */
   getStats() {

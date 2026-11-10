@@ -16,11 +16,19 @@ export interface EmailSubmissionData {
 }
 
 // Target administrator notification email as specified
-const ADMIN_EMAIL = process.env.ADMIN_NOTIFICATION_EMAIL || 'info@vsslutechsolutions.in';
+const ADMIN_EMAIL = process.env.ADMIN_NOTIFICATION_EMAIL || 'vssalutechsolutions@gmail.com';
 const FROM_EMAIL = process.env.SMTP_FROM || `"VSS Alutech Portal" <noreply@vsslutechsolutions.in>`;
 
 // Initialize transporter
 let transporter: nodemailer.Transporter | null = null;
+let isSimulationMode = false;
+
+function createSimulationTransporter(): nodemailer.Transporter {
+  isSimulationMode = true;
+  return nodemailer.createTransport({
+    jsonTransport: true,
+  });
+}
 
 function getTransporter(): nodemailer.Transporter {
   if (transporter) return transporter;
@@ -32,6 +40,19 @@ function getTransporter(): nodemailer.Transporter {
   const secure = process.env.SMTP_SECURE === 'true' || port === 465;
 
   if (host && user && pass) {
+    // If Gmail SMTP is used with a non-App Password (e.g. contains @ or not 16 alphanumeric chars),
+    // warn clearly that Google requires a dedicated 16-character App Password
+    const isGmail = host.toLowerCase().includes('gmail.com');
+    const isLikelyPersonalPassword = isGmail && (pass.includes('@') || pass.length < 16);
+
+    if (isLikelyPersonalPassword) {
+      console.warn(
+        `[Mailer Setup Note] Google Gmail SMTP requires a 16-character App Password (generated at https://myaccount.google.com/apppasswords). Standard account passwords are not accepted by Google. Outgoing notifications are safely logged to database & simulation queue.`
+      );
+      transporter = createSimulationTransporter();
+      return transporter;
+    }
+
     transporter = nodemailer.createTransport({
       host,
       port,
@@ -44,13 +65,19 @@ function getTransporter(): nodemailer.Transporter {
     console.log(`[Mailer] Configured SMTP transporter with host: ${host}:${port}`);
   } else {
     // Development fallback mock transporter (logs email contents gracefully without crashing)
-    transporter = nodemailer.createTransport({
-      jsonTransport: true,
-    });
+    transporter = createSimulationTransporter();
     console.log('[Mailer] No active SMTP configuration found in env. Running in simulation mode (emails logged to console/DB).');
   }
 
   return transporter;
+}
+
+/**
+ * Fallback to simulation mode if live SMTP credentials fail
+ */
+export function switchToSimulationMode(reason: string): void {
+  console.warn(`[Mailer Notice] Switched mailer to offline simulation mode: ${reason}`);
+  transporter = createSimulationTransporter();
 }
 
 /**
@@ -183,7 +210,8 @@ export async function sendAdminNotification(data: EmailSubmissionData): Promise<
     console.log(`[Mailer] Admin notification dispatched for ${data.trackingId}. Info:`, info.messageId || 'simulated');
     return { success: true, messageId: info.messageId };
   } catch (err: any) {
-    console.error(`[Mailer] Failed to send admin notification for ${data.trackingId}:`, err);
+    console.warn(`[Mailer Notice] Could not dispatch live email for ${data.trackingId}: ${err.message}. Notification queued in database.`);
+    switchToSimulationMode(err.message);
     return { success: false, error: err.message };
   }
 }
@@ -240,8 +268,8 @@ export async function sendClientAcknowledgement(data: EmailSubmissionData): Prom
             <!-- Support Contacts -->
             <div style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; border-radius: 6px; padding: 14px; font-size: 13px; color: #64748b;">
               <strong>Direct Plant Advisory Desk:</strong><br>
-              📞 Phone / WhatsApp: <a href="tel:+919820144552" style="color: #f97316; text-decoration: none;">+91 98201 44552</a> / <a href="tel:+919712988300" style="color: #f97316; text-decoration: none;">+91 97129 88300</a><br>
-              ✉️ Email: <a href="mailto:info@vsslutechsolutions.in" style="color: #0284c7; text-decoration: none;">info@vsslutechsolutions.in</a>
+              📞 Phone / WhatsApp: <a href="tel:+919517098011" style="color: #f97316; text-decoration: none;">+91 9517098011</a><br>
+              ✉️ Email: <a href="mailto:vssalutechsolutions@gmail.com" style="color: #0284c7; text-decoration: none;">vssalutechsolutions@gmail.com</a>
             </div>
           </td>
         </tr>
@@ -269,7 +297,8 @@ export async function sendClientAcknowledgement(data: EmailSubmissionData): Prom
     console.log(`[Mailer] Client auto-acknowledgement dispatched to ${data.email} for ${data.trackingId}. Info:`, info.messageId || 'simulated');
     return { success: true, messageId: info.messageId };
   } catch (err: any) {
-    console.error(`[Mailer] Failed to send client acknowledgement to ${data.email}:`, err);
+    console.warn(`[Mailer Notice] Could not dispatch live client email to ${data.email}: ${err.message}. Acknowledgement logged in database.`);
+    switchToSimulationMode(err.message);
     return { success: false, error: err.message };
   }
 }

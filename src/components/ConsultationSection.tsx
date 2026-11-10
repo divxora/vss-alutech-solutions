@@ -8,6 +8,14 @@ import {
 } from '../types';
 import { getAssetUrl } from '../utils/asset';
 import { enquiryService } from '../services/enquiryService';
+import {
+  formatWhatsAppEnquiryMessage,
+  buildWhatsAppUrl,
+  openWhatsAppDirectly,
+  VSS_PRIMARY_WHATSAPP,
+  VSS_DISPLAY_PHONE_1,
+  VSS_DISPLAY_PHONE_2,
+} from '../utils/whatsapp';
 
 interface ConsultationSectionProps {
   selectedService: string;
@@ -73,6 +81,7 @@ export const ConsultationSection: React.FC<ConsultationSectionProps> = ({
     serviceCategory: string;
     emailStatus: EmailDeliveryStatus;
     message: string;
+    whatsAppUrl: string;
   } | null>(null);
 
   const [serverError, setServerError] = useState<string | null>(null);
@@ -229,6 +238,26 @@ export const ConsultationSection: React.FC<ConsultationSectionProps> = ({
       });
 
       if (response.success && response.referenceId) {
+        // Build complete, structured WhatsApp text with all parameters
+        const waText = formatWhatsAppEnquiryMessage({
+          referenceId: response.referenceId,
+          type: 'Industrial Plant Enquiry',
+          fullName: formData.fullName,
+          companyName: formData.companyName,
+          phone: formData.phoneNumber,
+          email: formData.emailAddress,
+          location: formData.plantLocation || formData.cityState,
+          serviceCategory: formData.serviceCategory,
+          pressCapacity: formData.pressCapacity,
+          approxBudget: formData.approxBudget,
+          timelineUrgency: formData.timelineUrgency,
+          message: formData.message,
+          hasAttachment: Boolean(attachedFile?.name),
+          fileName: attachedFile?.name,
+        });
+
+        const waUrl = buildWhatsAppUrl(waText, VSS_PRIMARY_WHATSAPP);
+
         setSubmissionResult({
           referenceId: response.referenceId,
           companyName: formData.companyName,
@@ -236,12 +265,16 @@ export const ConsultationSection: React.FC<ConsultationSectionProps> = ({
           serviceCategory: formData.serviceCategory,
           emailStatus: response.emailStatus || 'pending',
           message: response.message,
+          whatsAppUrl: waUrl,
         });
         setServerError(null);
 
+        // Open WhatsApp directly with the complete structured message
+        openWhatsAppDirectly(waText, VSS_PRIMARY_WHATSAPP);
+
         onNotify(
-          'Enquiry Registered',
-          `Reference ID ${response.referenceId} generated. Notification dispatched to engineering.`,
+          'Enquiry Registered & WhatsApp Prepared',
+          `Reference ${response.referenceId} saved in Admin Portal. Complete details opened in WhatsApp.`,
           true
         );
 
@@ -320,7 +353,7 @@ export const ConsultationSection: React.FC<ConsultationSectionProps> = ({
                 <div>
                   <strong>Direct Engineering Inbox:</strong>
                   <p>
-                    <a href="mailto:info@vsslutechsolutions.in">info@vsslutechsolutions.in</a>
+                    <a href="mailto:vssalutechsolutions@gmail.com">vssalutechsolutions@gmail.com</a>
                   </p>
                 </div>
               </div>
@@ -334,7 +367,7 @@ export const ConsultationSection: React.FC<ConsultationSectionProps> = ({
                 <div>
                   <strong>WhatsApp &amp; Direct Hotline:</strong>
                   <p>
-                    <a href="tel:+919800000000">+91 [Hotline Placeholder]</a>
+                    <a href="tel:+919517098011">{VSS_DISPLAY_PHONE_1}</a>
                   </p>
                 </div>
               </div>
@@ -430,14 +463,26 @@ export const ConsultationSection: React.FC<ConsultationSectionProps> = ({
                       Submit Another Requirement
                     </button>
                     <a
-                      href={`https://wa.me/919800000000?text=${encodeURIComponent(
-                        `Hello VSS Alutech, I just submitted enquiry ${submissionResult.referenceId} for ${submissionResult.companyName}.`
-                      )}`}
+                      href={submissionResult.whatsAppUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn btn-whatsapp-direct"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        backgroundColor: '#25D366',
+                        color: '#ffffff',
+                        fontWeight: '600',
+                        padding: '10px 18px',
+                        borderRadius: '6px',
+                        textDecoration: 'none',
+                      }}
                     >
-                      WhatsApp Follow-Up
+                      <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                      </svg>
+                      <span>Send via WhatsApp Directly</span>
                     </a>
                   </div>
                 </div>
@@ -505,7 +550,7 @@ export const ConsultationSection: React.FC<ConsultationSectionProps> = ({
                         value={formData.phoneNumber}
                         onChange={handleChange}
                         className={errors.phoneNumber ? 'is-invalid' : ''}
-                        placeholder="+91 98201 44552"
+                        placeholder="+91 9517098011"
                         required
                       />
                       {errors.phoneNumber && <div className="field-error visible">{errors.phoneNumber}</div>}
@@ -838,18 +883,27 @@ export const ConsultationSection: React.FC<ConsultationSectionProps> = ({
                     className="btn btn-primary btn-block btn-lg"
                     id="submitConsultationBtn"
                     disabled={isSubmitting}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '10px',
+                      background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+                      border: 'none',
+                      boxShadow: '0 4px 14px rgba(249, 115, 22, 0.35)',
+                    }}
                   >
                     {isSubmitting ? (
                       <>
                         <span className="spinner-circle"></span>
-                        <span>Processing &amp; Registering Enquiry...</span>
+                        <span>Saving to Portal &amp; Launching WhatsApp...</span>
                       </>
                     ) : (
                       <>
-                        <span>Submit Business Enquiry</span>
-                        <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                          <polyline points="9 18 15 12 9 6"></polyline>
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
                         </svg>
+                        <span>Submit Request &amp; Send to WhatsApp</span>
                       </>
                     )}
                   </button>
@@ -858,7 +912,7 @@ export const ConsultationSection: React.FC<ConsultationSectionProps> = ({
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="guarantee-icon">
                       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                     </svg>
-                    <span>Instant Reference ID generated &bull; Secure encrypted transmission &bull; No marketing spam</span>
+                    <span>Instant Reference ID generated &bull; Logged in Admin Portal &bull; Direct WhatsApp dispatch</span>
                   </div>
                 </form>
               )}

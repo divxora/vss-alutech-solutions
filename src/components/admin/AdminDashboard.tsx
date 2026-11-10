@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Enquiry, EnquiryStatus } from '../../types';
 import { enquiryService } from '../../services/enquiryService';
-import { isSupabaseConfigured } from '../../utils/supabase';
 import { EnquiryDetailModal } from './EnquiryDetailModal';
 
 interface AdminDashboardProps {
@@ -24,8 +23,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [serviceFilter, setServiceFilter] = useState<string>('all');
   const [urgencyFilter, setUrgencyFilter] = useState<string>('all');
   const [selectedEnquiry, setSelectedEnquiry] = useState<Enquiry | null>(null);
-
-  const isConfigured = isSupabaseConfigured();
 
   const loadData = async () => {
     setLoading(true);
@@ -113,6 +110,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     onNotify('Export Successful', `Exported ${filteredEnquiries.length} enquiries to CSV.`, true);
   };
 
+  const handleClearAll = async () => {
+    const confirmed = window.confirm(
+      'Are you sure you want to clear ALL enquiries from the admin portal? This will permanently delete test & dummy records from the database.'
+    );
+    if (!confirmed) return;
+
+    try {
+      const res = await enquiryService.clearAllSubmissions();
+      if (res.success) {
+        setEnquiries([]);
+        setSelectedEnquiry(null);
+        onNotify('Portal Cleared', 'All dummy and test requests have been cleared.', true);
+      } else {
+        onNotify('Clear Failed', res.error || 'Could not clear requests.', false);
+      }
+    } catch (err: unknown) {
+      onNotify('Error', err instanceof Error ? err.message : 'Error clearing requests.', false);
+    }
+  };
+
   const handleEnquiryUpdated = (updated: Enquiry) => {
     setEnquiries((prev) => prev.map((e) => (e.id === updated.id ? updated : e)));
     setSelectedEnquiry(updated);
@@ -159,14 +176,30 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
 
           <div className="admin-header-right">
-            <div className={`connection-badge ${isConfigured ? 'live' : 'sandbox'}`}>
+            <div className="connection-badge live">
               <span className="pulse-dot"></span>
-              {isConfigured ? 'Supabase PostgreSQL Live' : 'Demo Sandbox Mode'}
+              VSS Enterprise Backend (Live)
             </div>
 
             <div className="admin-user-info">
               <span className="user-email">{adminEmail}</span>
             </div>
+
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-danger"
+              onClick={handleClearAll}
+              title="Clear all requests from admin database"
+              style={{
+                borderColor: '#ef4444',
+                color: '#f87171',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              🗑 Clear All Requests
+            </button>
 
             <button
               type="button"

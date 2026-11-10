@@ -254,3 +254,18 @@ export async function handleDownloadAttachment(req: AuthenticatedRequest, res: R
 
   res.download(resolvedPath, item.file_name || path.basename(resolvedPath));
 }
+
+/**
+  * DELETE /api/admin/submissions/clear-all
+  * Purges all submissions and audit logs (admin only)
+  */
+export async function handleClearAllSubmissions(req: AuthenticatedRequest, res: Response): Promise<void> {
+  const performer = req.user?.email || 'admin';
+  const totalCleared = submissionModel.clearAll(performer);
+
+  res.status(200).json({
+    success: true,
+    message: `Successfully cleared ${totalCleared} request(s) from the admin portal.`,
+    count: totalCleared,
+  });
+}

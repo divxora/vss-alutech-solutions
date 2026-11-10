@@ -165,7 +165,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onClose }) =>
                 id="setupEmail"
                 value={setupEmail}
                 onChange={(e) => setSetupEmail(e.target.value)}
-                placeholder="e.g. info@vsslutechsolutions.in"
+                placeholder="e.g. vssalutechsolutions@gmail.com"
                 required
               />
             </div>
@@ -214,7 +214,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onClose }) =>
                 id="adminEmail"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="e.g. info@vsslutechsolutions.in"
+                placeholder="e.g. vssalutechsolutions@gmail.com"
                 required
                 autoComplete="email"
               />
