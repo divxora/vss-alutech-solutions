@@ -1,28 +1,45 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Header } from './components/Header';
-import { Hero } from './components/Hero';
-import { ServiceOverview } from './components/ServiceOverview';
-import { StatsPanel } from './components/StatsPanel';
-import { PressSolutions } from './components/PressSolutions';
-import { FurnaceSolutions } from './components/FurnaceSolutions';
-import { Troubleshooting } from './components/Troubleshooting';
-import { ToolRoomDies } from './components/ToolRoomDies';
-import { ManpowerSupplier } from './components/ManpowerSupplier';
-import { ProcessRoadmap } from './components/ProcessRoadmap';
-import { FeaturedProjects } from './components/FeaturedProjects';
-import { FaqSection } from './components/FaqSection';
-import { ConsultationSection } from './components/ConsultationSection';
 import { Footer } from './components/Footer';
+import { HomePage } from './pages/HomePage';
+import { AboutPage } from './pages/AboutPage';
+import { SolutionsPage } from './pages/SolutionsPage';
+import { SectorsPage } from './pages/SectorsPage';
+import { ContactPage } from './pages/ContactPage';
 import { Modals } from './components/Modals';
 import { BackToTop } from './components/BackToTop';
 import { Toast } from './components/Toast';
 import { ToastMessage } from './types';
+import { PageRoute } from './types/navigation';
 import { AdminLogin } from './components/admin/AdminLogin';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { supabase, isSupabaseConfigured } from './utils/supabase';
 
+function parseRoute(): { page: PageRoute; section?: string } {
+  const hash = window.location.hash.replace(/^#/, '');
+  const path = window.location.pathname.replace(/^\//, '');
+
+  const identifier = hash || path;
+
+  if (identifier.startsWith('about')) return { page: 'about' };
+  if (identifier.startsWith('solutions')) return { page: 'solutions' };
+  if (identifier.startsWith('sectors') || identifier.startsWith('industries') || identifier.startsWith('projects')) {
+    return { page: 'sectors' };
+  }
+  if (identifier.startsWith('contact') || identifier.startsWith('consultation')) {
+    return { page: 'contact' };
+  }
+  if (identifier.startsWith('press') || identifier.startsWith('furnace') || identifier.startsWith('trouble') || identifier.startsWith('toolroom') || identifier.startsWith('manpower')) {
+    return { page: 'solutions', section: identifier };
+  }
+
+  return { page: 'home' };
+}
+
 export const App: React.FC = () => {
-  const [activeSection, setActiveSection] = useState<string>('hero');
+  const [currentPage, setCurrentPage] = useState<PageRoute>(() => parseRoute().page);
+  const [targetSection, setTargetSection] = useState<string | undefined>(() => parseRoute().section);
+
   const [brochureOpen, setBrochureOpen] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
@@ -33,8 +50,8 @@ export const App: React.FC = () => {
   const [adminDashboardOpen, setAdminDashboardOpen] = useState(false);
 
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
-  const [selectedService, setSelectedService] = useState<string>('');
-  const [estimatedRequirement, setEstimatedRequirement] = useState<string>('');
+  const [selectedService, setSelectedService] = useState<string>('Aluminium extrusion press solutions');
+  const [estimatedRequirement] = useState<string>('');
 
   const addToast = useCallback((title: string, message: string, isSuccess = true) => {
     const id = Date.now().toString() + Math.random().toString(36).substring(2, 5);
@@ -43,6 +60,64 @@ export const App: React.FC = () => {
 
   const dismissToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
+  // Sync document title and canonical URL per page for technical SEO
+  useEffect(() => {
+    const titles: Record<PageRoute, string> = {
+      home: 'VSS Alutech Solutions | Complete Aluminium Extrusion Plant Solutions',
+      about: 'About VSS Alutech Solutions | Premier Extrusion Engineering Consultancy',
+      solutions: 'Extrusion Plant Machinery, Furnaces & Toolroom Solutions | VSS Alutech',
+      sectors: 'Industries We Serve — Architectural, Solar, Automotive & EV | VSS Alutech',
+      contact: 'Contact & Request Consultation | VSS Alutech Solutions — Tamkuhiraj, India',
+    };
+
+    document.title = titles[currentPage] || titles.home;
+  }, [currentPage]);
+
+  // Handle route change
+  const handleNavigate = (page: PageRoute, section?: string) => {
+    setCurrentPage(page);
+    setTargetSection(section);
+
+    if (page === 'contact' && section) {
+      setSelectedService(section);
+    }
+
+    const routeUrl = page === 'home' ? '/' : `/${page}`;
+    try {
+      window.history.pushState({ page, section }, '', routeUrl);
+    } catch {
+      window.location.hash = page === 'home' ? '' : `#${page}`;
+    }
+
+    // Smooth scroll to top or target section
+    if (!section) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      setTimeout(() => {
+        const el = document.getElementById(section);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 80);
+    }
+  };
+
+  // Listen to browser Back/Forward (popstate) and hashchange
+  useEffect(() => {
+    const handlePopState = () => {
+      const parsed = parseRoute();
+      setCurrentPage(parsed.page);
+      setTargetSection(parsed.section);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    window.addEventListener('hashchange', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('hashchange', handlePopState);
+    };
   }, []);
 
   // Listen for Supabase Auth state change
@@ -66,7 +141,7 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  // Listen for URL hash `#admin` or `#admin-login`
+  // Listen for Admin Portal triggers
   useEffect(() => {
     const checkHash = () => {
       const hash = window.location.hash;
@@ -84,61 +159,6 @@ export const App: React.FC = () => {
     window.addEventListener('hashchange', checkHash);
     return () => window.removeEventListener('hashchange', checkHash);
   }, [adminEmail]);
-
-  // IntersectionObserver to sync active nav link
-  useEffect(() => {
-    const sectionIds = [
-      'press-solutions',
-      'furnace-solutions',
-      'plant-troubleshooting',
-      'toolroom-dies',
-      'manpower-supplier',
-      'process',
-      'projects',
-      'faq',
-      'consultation',
-    ];
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
-        });
-      },
-      { rootMargin: '-20% 0px -65% 0px' }
-    );
-
-    sectionIds.forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
-
-    return () => observer.disconnect();
-  }, []);
-
-  const handleSelectService = (serviceName: string) => {
-    setSelectedService(serviceName);
-    const el = document.getElementById('consultation');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const handleApplyEstimate = (estimate: string) => {
-    setSelectedService('Press Solutions');
-    setEstimatedRequirement(estimate);
-    addToast('Calculator Sizing Applied', 'Transferred parameters to Consultation Form below.');
-    const el = document.getElementById('consultation');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-      setTimeout(() => {
-        const input = document.getElementById('estimatedRequirement');
-        if (input) input.focus();
-      }, 600);
-    }
-  };
 
   const handleOpenAdmin = () => {
     if (adminEmail) {
@@ -167,7 +187,7 @@ export const App: React.FC = () => {
     }
   };
 
-  // If Admin Dashboard is active, render the dedicated executive management interface
+  // If Admin Dashboard is active, render executive portal
   if (adminDashboardOpen) {
     return (
       <div className="site-wrapper admin-active-wrapper">
@@ -190,34 +210,41 @@ export const App: React.FC = () => {
   return (
     <div className="site-wrapper">
       <Header
+        currentPage={currentPage}
+        onNavigate={handleNavigate}
         onOpenBrochure={() => setBrochureOpen(true)}
-        activeSection={activeSection}
         onOpenAdmin={handleOpenAdmin}
       />
 
-      <main>
-        <Hero />
-        <ServiceOverview />
-        <StatsPanel />
-        <PressSolutions
-          onSelectService={handleSelectService}
-          onApplyEstimate={handleApplyEstimate}
-        />
-        <FurnaceSolutions onSelectService={handleSelectService} />
-        <Troubleshooting onSelectService={handleSelectService} />
-        <ToolRoomDies onSelectService={handleSelectService} />
-        <ManpowerSupplier onNotify={addToast} />
-        <ProcessRoadmap />
-        <FeaturedProjects />
-        <FaqSection />
-        <ConsultationSection
-          selectedService={selectedService}
-          estimatedRequirement={estimatedRequirement}
-          onNotify={addToast}
-        />
+      {/* Main Multi-Page Routed View */}
+      <main id="main-content" tabIndex={-1}>
+        {currentPage === 'home' && (
+          <HomePage onNavigate={handleNavigate} />
+        )}
+        {currentPage === 'about' && (
+          <AboutPage onNavigate={handleNavigate} />
+        )}
+        {currentPage === 'solutions' && (
+          <SolutionsPage
+            initialSection={targetSection}
+            onNavigate={handleNavigate}
+            onNotify={addToast}
+          />
+        )}
+        {currentPage === 'sectors' && (
+          <SectorsPage onNavigate={handleNavigate} />
+        )}
+        {currentPage === 'contact' && (
+          <ContactPage
+            selectedService={selectedService}
+            estimatedRequirement={estimatedRequirement}
+            onNotify={addToast}
+          />
+        )}
       </main>
 
       <Footer
+        onNavigate={handleNavigate}
         onOpenBrochure={() => setBrochureOpen(true)}
         onOpenPrivacy={() => setPrivacyOpen(true)}
         onOpenTerms={() => setTermsOpen(true)}

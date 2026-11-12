@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import { PageRoute } from '../types/navigation';
+import { VSS_DISPLAY_PHONE_1, VSS_BUSINESS_EMAIL } from '../utils/whatsapp';
 
 interface HeaderProps {
+  currentPage: PageRoute;
+  onNavigate: (page: PageRoute, targetSection?: string) => void;
   onOpenBrochure: () => void;
-  activeSection: string;
   onOpenAdmin?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenBrochure, activeSection, onOpenAdmin }) => {
+export const Header: React.FC<HeaderProps> = ({
+  currentPage,
+  onNavigate,
+  onOpenBrochure,
+  onOpenAdmin,
+}) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [scrollHidden, setScrollHidden] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -16,12 +24,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenBrochure, activeSection, o
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      setIsScrolled(currentScrollY > 40);
+      setIsScrolled(currentScrollY > 30);
 
-      // Auto-hide header when scrolling down past 120px; smoothly reveal when scrolling up
-      if (currentScrollY > 120 && currentScrollY > lastScrollY + 8) {
+      if (currentScrollY > 100 && currentScrollY > lastScrollY + 8) {
         setScrollHidden(true);
-      } else if (currentScrollY < lastScrollY - 8 || currentScrollY <= 120) {
+      } else if (currentScrollY < lastScrollY - 8 || currentScrollY <= 100) {
         setScrollHidden(false);
       }
 
@@ -52,141 +59,110 @@ export const Header: React.FC<HeaderProps> = ({ onOpenBrochure, activeSection, o
 
   const closeDrawer = () => setDrawerOpen(false);
 
+  const handleNavClick = (page: PageRoute, targetSection?: string) => {
+    closeDrawer();
+    onNavigate(page, targetSection);
+  };
+
   return (
     <>
       <header
         className={`site-header ${isScrolled ? 'scrolled' : ''} ${scrollHidden ? 'scroll-hidden' : ''}`}
         id="siteHeader"
       >
-        <div className="top-utility-bar">
-          <div className="container utility-container">
-            <div className="utility-left">
-              <div className="utility-item">
-                <svg className="utility-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                  <polyline points="22,6 12,13 2,6"></polyline>
-                </svg>
-                <a href="mailto:vssalutechsolutions@gmail.com" title="Email VSS Alutech Solutions">vssalutechsolutions@gmail.com</a>
-              </div>
-              <div className="utility-item">
-                <svg className="utility-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                </svg>
-                <a href="tel:+919517098011" title="Call Us">+91 9517098011</a>
-              </div>
-            </div>
-            <div className="utility-right">
-              <div className="utility-item location-badge">
-                <svg className="utility-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                  <circle cx="12" cy="10" r="3"></circle>
-                </svg>
-                <span>India | Industrial Solutions</span>
-              </div>
-              <button
-                type="button"
-                className="utility-btn"
-                id="openBrochureBtn"
-                onClick={onOpenBrochure}
-                aria-label="Download Solutions Brochure"
-              >
-                <svg className="utility-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                  <polyline points="14 2 14 8 20 8"></polyline>
-                  <line x1="12" y1="18" x2="12" y2="12"></line>
-                  <line x1="9" y1="15" x2="15" y2="15"></line>
-                </svg>
-                <span>Brochure</span>
-              </button>
-              <button
-                type="button"
-                className="utility-btn"
-                onClick={onOpenAdmin}
-                title="Executive B2B Admin Portal"
-                style={{ cursor: 'pointer' }}
-              >
-                <svg className="utility-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                </svg>
-                <span>Admin</span>
-              </button>
-              <a href="#consultation" className="utility-link">Contact</a>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Navigation */}
+        {/* Main Minimalist Editorial Navigation - Zero black notch bar, pure warm stone canvas */}
         <nav className="main-nav" aria-label="Main Navigation">
           <div className="container nav-container">
-            <a href="#hero" className="brand-logo" aria-label="VSS Alutech Solutions Homepage">
-              <div className="logo-mark" aria-hidden="true">
-                <svg viewBox="0 0 48 48" className="logo-svg" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <polygon points="24,4 42,14 42,34 24,44 6,34 6,14" stroke="#0A192F" strokeWidth="3" fill="#F0F4F8" />
-                  <polygon points="24,10 37,17.5 37,30.5 24,38 11,30.5 11,17.5" stroke="#FF6B00" strokeWidth="2.5" fill="#FFFFFF" />
-                  <circle cx="24" cy="24" r="6" stroke="#0A192F" strokeWidth="2.5" fill="#0A192F" />
-                  <line x1="24" y1="10" x2="24" y2="18" stroke="#FF6B00" strokeWidth="2" />
-                  <line x1="24" y1="30" x2="24" y2="38" stroke="#FF6B00" strokeWidth="2" />
-                  <line x1="11" y1="24" x2="18" y2="24" stroke="#FF6B00" strokeWidth="2" />
-                  <line x1="30" y1="24" x2="37" y2="24" stroke="#FF6B00" strokeWidth="2" />
-                </svg>
-              </div>
+            {/* Brand Wordmark matching reference aesthetic: |'| VSS ALUTECH. */}
+            <button
+              type="button"
+              className="brand-logo"
+              onClick={() => handleNavClick('home')}
+              aria-label="VSS Alutech Solutions Homepage"
+            >
+              <span className="brand-graphic-tick" aria-hidden="true">|'|</span>
               <div className="brand-text">
-                <span className="brand-title">VSS ALUTECH <span className="brand-accent">SOLUTIONS</span></span>
-                <span className="brand-subtitle">Aluminium Extrusion Plant Solutions</span>
+                <span className="brand-title">VSS ALUTECH.</span>
               </div>
-            </a>
+            </button>
 
+            {/* Centered Spaced Nav Links in Tracked Minimalist Uppercase */}
             <ul className="nav-links" id="navLinks">
               <li>
-                <a
-                  href="#press-solutions"
-                  className={`nav-link ${activeSection === 'press-solutions' ? 'active' : ''}`}
+                <button
+                  type="button"
+                  className={`nav-link-btn ${currentPage === 'home' ? 'active' : ''}`}
+                  onClick={() => handleNavClick('home')}
                 >
-                  Press Solutions
-                </a>
+                  HOME
+                </button>
               </li>
               <li>
-                <a
-                  href="#furnace-solutions"
-                  className={`nav-link ${activeSection === 'furnace-solutions' ? 'active' : ''}`}
+                <button
+                  type="button"
+                  className={`nav-link-btn ${currentPage === 'about' ? 'active' : ''}`}
+                  onClick={() => handleNavClick('about')}
                 >
-                  Furnace Solutions
-                </a>
+                  ABOUT
+                </button>
               </li>
               <li>
-                <a
-                  href="#plant-troubleshooting"
-                  className={`nav-link ${activeSection === 'plant-troubleshooting' ? 'active' : ''}`}
+                <button
+                  type="button"
+                  className={`nav-link-btn ${currentPage === 'solutions' ? 'active' : ''}`}
+                  onClick={() => handleNavClick('solutions')}
                 >
-                  Plant Maintenance
-                </a>
+                  SOLUTIONS
+                </button>
               </li>
               <li>
-                <a
-                  href="#toolroom-dies"
-                  className={`nav-link ${activeSection === 'toolroom-dies' ? 'active' : ''}`}
+                <button
+                  type="button"
+                  className={`nav-link-btn ${currentPage === 'sectors' ? 'active' : ''}`}
+                  onClick={() => handleNavClick('sectors')}
                 >
-                  Tool Room &amp; Die Solutions
-                </a>
+                  SECTORS
+                </button>
               </li>
               <li>
-                <a
-                  href="#manpower-supplier"
-                  className={`nav-link ${activeSection === 'manpower-supplier' ? 'active' : ''}`}
+                <button
+                  type="button"
+                  className={`nav-link-btn ${currentPage === 'contact' ? 'active' : ''}`}
+                  onClick={() => handleNavClick('contact')}
                 >
-                  Manpower Supplier
-                </a>
+                  CONTACT
+                </button>
               </li>
             </ul>
 
+            {/* Right Action: Brochure, Portal, and Pill-Outlined CONTACT Button */}
             <div className="nav-actions">
-              <a href="#consultation" className="btn btn-quote" id="headerQuoteBtn">
-                <span>Get a Quote</span>
-                <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                  <polyline points="12 5 19 12 12 19"></polyline>
-                </svg>
-              </a>
+              <button
+                type="button"
+                className="nav-link-btn hidden-mobile"
+                onClick={onOpenBrochure}
+                style={{ fontSize: '0.68rem', letterSpacing: '0.14em' }}
+              >
+                BROCHURE
+              </button>
+              <button
+                type="button"
+                className="nav-link-btn hidden-mobile"
+                onClick={onOpenAdmin}
+                title="Executive B2B Admin Portal"
+                style={{ fontSize: '0.68rem', letterSpacing: '0.14em', opacity: 0.8 }}
+              >
+                PORTAL
+              </button>
+
+              <button
+                type="button"
+                className="btn-contact-pill"
+                id="headerContactBtn"
+                onClick={() => handleNavClick('contact')}
+              >
+                <span>GET A QUOTE</span>
+              </button>
 
               <button
                 type="button"
@@ -210,8 +186,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenBrochure, activeSection, o
       <div className={`mobile-drawer ${drawerOpen ? 'open' : ''}`} id="mobileDrawer" aria-hidden={!drawerOpen}>
         <div className="mobile-drawer-header">
           <div className="drawer-brand">
-            <span className="brand-title">VSS ALUTECH</span>
-            <span className="brand-sub">Plant Solutions</span>
+            <span className="brand-graphic-tick">|'|</span>
+            <span className="brand-title">VSS ALUTECH.</span>
           </div>
           <button
             type="button"
@@ -224,43 +200,88 @@ export const Header: React.FC<HeaderProps> = ({ onOpenBrochure, activeSection, o
           </button>
         </div>
         <ul className="mobile-nav-links">
-          <li><a href="#press-solutions" className="mobile-nav-link" onClick={closeDrawer}>1. Press Solutions</a></li>
-          <li><a href="#furnace-solutions" className="mobile-nav-link" onClick={closeDrawer}>2. Furnace Solutions</a></li>
-          <li><a href="#plant-troubleshooting" className="mobile-nav-link" onClick={closeDrawer}>3. Plant Maintenance</a></li>
-          <li><a href="#toolroom-dies" className="mobile-nav-link" onClick={closeDrawer}>4. Tool Room &amp; Die Solutions</a></li>
-          <li><a href="#manpower-supplier" className="mobile-nav-link" onClick={closeDrawer}>5. Manpower Supplier</a></li>
-          <li><a href="#process" className="mobile-nav-link" onClick={closeDrawer}>Complete Plant Process</a></li>
-          <li><a href="#consultation" className="mobile-nav-link" onClick={closeDrawer}>Consultation Form</a></li>
           <li>
             <button
               type="button"
-              className="mobile-nav-link"
-              style={{
-                background: 'none',
-                border: 'none',
-                width: '100%',
-                textAlign: 'left',
-                cursor: 'pointer',
-                color: 'var(--color-orange)',
-                fontWeight: 700,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
+              className={`mobile-nav-link text-left w-full ${currentPage === 'home' ? 'text-orange font-bold' : ''}`}
+              onClick={() => handleNavClick('home')}
+            >
+              01. HOME &bull; OVERVIEW
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              className={`mobile-nav-link text-left w-full ${currentPage === 'about' ? 'text-orange font-bold' : ''}`}
+              onClick={() => handleNavClick('about')}
+            >
+              02. ABOUT VSS ALUTECH
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              className={`mobile-nav-link text-left w-full ${currentPage === 'solutions' ? 'text-orange font-bold' : ''}`}
+              onClick={() => handleNavClick('solutions')}
+            >
+              03. PLANT SOLUTIONS &amp; MACHINERY
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              className={`mobile-nav-link text-left w-full ${currentPage === 'sectors' ? 'text-orange font-bold' : ''}`}
+              onClick={() => handleNavClick('sectors')}
+            >
+              04. INDUSTRIES &amp; SECTORS
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              className={`mobile-nav-link text-left w-full ${currentPage === 'contact' ? 'text-orange font-bold' : ''}`}
+              onClick={() => handleNavClick('contact')}
+            >
+              05. CONTACT &amp; CONSULTATION
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              className="mobile-nav-link text-left w-full"
+              onClick={() => {
+                closeDrawer();
+                onOpenBrochure();
               }}
+            >
+              06. DOWNLOAD BROCHURE (PDF)
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              className="mobile-nav-link text-left w-full admin-nav-btn"
               onClick={() => {
                 closeDrawer();
                 onOpenAdmin?.();
               }}
             >
-              <span>🔒 Executive Admin Portal</span>
+              07. EXECUTIVE PORTAL &bull; ADMIN LOGIN
             </button>
           </li>
         </ul>
         <div className="mobile-drawer-footer">
-          <a href="#consultation" className="btn btn-primary btn-block" onClick={closeDrawer}>Get a Quote</a>
+          <button
+            type="button"
+            className="btn btn-primary btn-block"
+            onClick={() => handleNavClick('contact')}
+          >
+            REQUEST A QUOTE
+          </button>
           <div className="mobile-contact-info">
-            <p><strong>Email:</strong> <a href="mailto:vssalutechsolutions@gmail.com">vssalutechsolutions@gmail.com</a></p>
-            <p><strong>Phone:</strong> <a href="tel:+919517098011">+91 9517098011</a></p>
+            <p><strong>Email:</strong> <a href={`mailto:${VSS_BUSINESS_EMAIL}`}>{VSS_BUSINESS_EMAIL}</a></p>
+            <p><strong>Phone:</strong> <a href={`tel:${VSS_DISPLAY_PHONE_1.replace(/\s+/g, '')}`}>{VSS_DISPLAY_PHONE_1}</a></p>
+            <p><strong>Office:</strong> Tamkuhiraj, Kushinagar, UP - 274407</p>
           </div>
         </div>
       </div>

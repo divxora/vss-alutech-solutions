@@ -920,15 +920,17 @@ export const ConsultationSection: React.FC<ConsultationSectionProps> = ({
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: '10px',
-                        background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
-                        border: 'none',
-                        boxShadow: '0 4px 14px rgba(249, 115, 22, 0.35)',
+                        background: '#141412',
+                        border: '1px solid #141412',
+                        boxShadow: '0 4px 14px rgba(20, 20, 18, 0.25)',
                         width: '100%',
                         padding: '14px 20px',
-                        fontWeight: 700,
-                        borderRadius: '6px',
-                        color: '#ffffff',
+                        fontWeight: 600,
+                        letterSpacing: '0.04em',
+                        borderRadius: '3px',
+                        color: '#FAF8F5',
                         cursor: 'pointer',
+                        transition: 'all 0.2s ease',
                       }}
                     >
                       {isSubmitting ? (
@@ -959,13 +961,15 @@ export const ConsultationSection: React.FC<ConsultationSectionProps> = ({
                         gap: '10px',
                         backgroundColor: '#25D366',
                         border: 'none',
-                        boxShadow: '0 4px 14px rgba(37, 211, 102, 0.35)',
+                        boxShadow: '0 4px 14px rgba(37, 211, 102, 0.3)',
                         width: '100%',
                         padding: '14px 20px',
-                        fontWeight: 700,
-                        borderRadius: '6px',
+                        fontWeight: 600,
+                        letterSpacing: '0.02em',
+                        borderRadius: '3px',
                         color: '#ffffff',
                         cursor: 'pointer',
+                        transition: 'all 0.2s ease',
                       }}
                     >
                       <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
@@ -979,10 +983,10 @@ export const ConsultationSection: React.FC<ConsultationSectionProps> = ({
                       className="form-helper-callout"
                       style={{
                         padding: '12px 14px',
-                        background: '#FEF9C3',
-                        border: '1px solid #FDE047',
-                        borderRadius: '6px',
-                        color: '#854D0E',
+                        background: '#F5EFE6',
+                        border: '1px solid #E2D7C7',
+                        borderRadius: '3px',
+                        color: '#6E4924',
                         fontSize: '13.5px',
                         lineHeight: '1.5',
                         fontWeight: '500',

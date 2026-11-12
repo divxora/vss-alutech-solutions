@@ -1,100 +1,193 @@
 import React from 'react';
 import { getAssetUrl } from '../utils/asset';
 
-export const Hero: React.FC = () => {
+interface HeroProps {
+  onOpenConsultation?: (serviceCategory?: string) => void;
+}
+
+export const Hero: React.FC<HeroProps> = ({ onOpenConsultation }) => {
+  const handleScrollTo = (targetId: string, serviceCategory?: string) => {
+    if (serviceCategory && onOpenConsultation) {
+      onOpenConsultation(serviceCategory);
+    }
+    const el = document.getElementById(targetId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
-    <section
-      className="hero-section"
-      id="hero"
-      style={{ backgroundImage: `url('${getAssetUrl('assets/images/hero-extrusion-press.jpg')}')` }}
-    >
-      <div className="hero-overlay"></div>
-      <div className="container hero-container">
-        <div className="hero-content">
-          <div className="hero-badge">
-            <span className="badge-dot"></span>
-            <span>B2B Industrial Engineering &amp; Operations Partner</span>
-          </div>
-
-          <h1 className="hero-headline">
-            Complete Aluminium Extrusion <span className="highlight-orange">Plant Solutions</span>
-          </h1>
-
-          <p className="hero-subtext">
-            From machinery selection and plant setup to plant maintenance, die sourcing and skilled manpower — your complete partner for aluminium extrusion operations.
-          </p>
-
-          {/* 5 Compact Service Highlights */}
-          <div className="hero-highlights">
-            <a href="#press-solutions" className="hero-pill">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="3" width="18" height="18" rx="2" />
-                <line x1="12" y1="8" x2="12" y2="16" />
-                <line x1="8" y1="12" x2="16" y2="12" />
-              </svg>
-              <span>Press &amp; Machinery</span>
-            </a>
-            <a href="#furnace-solutions" className="hero-pill">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 2c2 4 6 6 6 11a6 6 0 0 1-12 0c0-5 4-7 6-11z" />
-                <path d="M12 11c1 2 3 3 3 5a3 3 0 0 1-6 0c0-2 2-3 3-5z" />
-              </svg>
-              <span>Furnace Solutions</span>
-            </a>
-            <a href="#plant-troubleshooting" className="hero-pill">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
-              </svg>
-              <span>Plant Consultancy</span>
-            </a>
-            <a href="#toolroom-dies" className="hero-pill">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="9" />
-                <circle cx="12" cy="12" r="3" />
-                <line x1="12" y1="3" x2="12" y2="9" />
-                <line x1="12" y1="15" x2="12" y2="21" />
-              </svg>
-              <span>Tool Room &amp; Dies</span>
-            </a>
-            <a href="#manpower-supplier" className="hero-pill">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-              </svg>
-              <span>Manpower Supply</span>
-            </a>
-          </div>
-
-          {/* Dual Call to Action Buttons */}
-          <div className="hero-cta-group">
-            <a href="#consultation" className="btn btn-primary btn-lg" id="heroTalkExpertsBtn">
-              <span>Talk to Our Experts</span>
-              <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
-            </a>
-            <a href="#consultation" className="btn btn-outline-light btn-lg" id="heroRequestConsultBtn">
-              <span>Request a Consultation</span>
-            </a>
-          </div>
-
-          {/* Trust Badges Bar */}
-          <div className="hero-trust-bar">
-            <div className="trust-item">
-              <span className="trust-check">&#10003;</span>
-              <span>Single-Source Plant Solutions</span>
+    <section className="hero-editorial-section" id="hero">
+      <div className="container hero-editorial-container">
+        {/* Main Asymmetric Grid matching reference design */}
+        <div className="hero-editorial-grid">
+          {/* Left Column: Image on top, text & CTAs beneath */}
+          <div className="hero-col-left">
+            <div className="hero-image-frame-wrapper">
+              <div className="hero-image-frame">
+                <img
+                  src={getAssetUrl('assets/images/hero-extrusion-press.jpg')}
+                  alt="Aluminium Extrusion Press Facility"
+                  className="hero-image-primary"
+                  loading="eager"
+                />
+              </div>
+              <div className="hero-frame-offset-box" aria-hidden="true"></div>
             </div>
-            <div className="trust-item">
-              <span className="trust-check">&#10003;</span>
-              <span>Independent Tool Room Network</span>
-            </div>
-            <div className="trust-item">
-              <span className="trust-check">&#10003;</span>
-              <span>Skilled Operational Manpower</span>
+
+            <div className="hero-left-text-block">
+              <span className="hero-kicker">PRECISION &amp; PLANT RECOVERY</span>
+              <p className="hero-narrative">
+                We elevate aluminium extrusion manufacturing through turnkey machinery sourcing, furnace engineering, precision die networks, and hands-on operational troubleshooting across India.
+              </p>
+
+              {/* Action Buttons */}
+              <div className="hero-editorial-actions">
+                <a
+                  href="#consultation"
+                  className="btn-architectural-dark"
+                  id="heroTalkExpertsBtn"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleScrollTo('consultation', 'Aluminium extrusion press solutions');
+                  }}
+                >
+                  <span>Talk to Our Experts</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="btn-arrow-icon">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </a>
+                <a
+                  href="#consultation"
+                  className="btn-architectural-outline"
+                  id="heroRequestConsultBtn"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleScrollTo('consultation');
+                  }}
+                >
+                  <span>Request Consultation</span>
+                </a>
+              </div>
+
+              {/* Trust Indicators */}
+              <div className="hero-editorial-trust">
+                <span className="trust-pill">&bull; Turnkey Plant Setup</span>
+                <span className="trust-pill">&bull; Die Recovery Network</span>
+                <span className="trust-pill">&bull; Skilled Technical Crews</span>
+              </div>
             </div>
           </div>
+
+          {/* Right Column: Editorial Serif Title on top, Portrait Image beneath */}
+          <div className="hero-col-right">
+            <div className="hero-title-group">
+              <h1 className="hero-grand-title">
+                <span className="title-row">VSS</span>
+                <span className="title-row">ALUTECH.</span>
+              </h1>
+              <div className="hero-origin-meta">
+                <span>TAMKUHIRAJ, INDIA &mdash; EST. OPERATIONS</span>
+              </div>
+            </div>
+
+            <div className="hero-portrait-wrapper">
+              {/* Delicate Geometric Wireframe Accent from reference */}
+              <div className="hero-wireframe-circle" aria-hidden="true">
+                <svg viewBox="0 0 100 100" fill="none">
+                  <circle cx="50" cy="50" r="48" stroke="currentColor" strokeWidth="1" strokeDasharray="2 3" />
+                </svg>
+              </div>
+
+              <div className="hero-portrait-frame">
+                <img
+                  src={getAssetUrl('assets/images/plant-troubleshooting.jpg')}
+                  alt="Extrusion Operations & Technical Engineering"
+                  className="hero-image-secondary"
+                  loading="eager"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 5 Architectural Service Links */}
+        <div className="hero-services-bar">
+          <a
+            href="#press-solutions"
+            className="hero-service-tag"
+            onClick={(e) => {
+              e.preventDefault();
+              handleScrollTo('press-solutions');
+            }}
+          >
+            <span className="tag-index">01</span>
+            <span className="tag-name">PRESS &amp; MACHINERY</span>
+          </a>
+          <a
+            href="#furnace-solutions"
+            className="hero-service-tag"
+            onClick={(e) => {
+              e.preventDefault();
+              handleScrollTo('furnace-solutions');
+            }}
+          >
+            <span className="tag-index">02</span>
+            <span className="tag-name">FURNACE SOLUTIONS</span>
+          </a>
+          <a
+            href="#plant-troubleshooting"
+            className="hero-service-tag"
+            onClick={(e) => {
+              e.preventDefault();
+              handleScrollTo('plant-troubleshooting');
+            }}
+          >
+            <span className="tag-index">03</span>
+            <span className="tag-name">PLANT CONSULTANCY</span>
+          </a>
+          <a
+            href="#toolroom-dies"
+            className="hero-service-tag"
+            onClick={(e) => {
+              e.preventDefault();
+              handleScrollTo('toolroom-dies');
+            }}
+          >
+            <span className="tag-index">04</span>
+            <span className="tag-name">TOOL ROOM &amp; DIES</span>
+          </a>
+          <a
+            href="#manpower-supplier"
+            className="hero-service-tag"
+            onClick={(e) => {
+              e.preventDefault();
+              handleScrollTo('manpower-supplier');
+            }}
+          >
+            <span className="tag-index">05</span>
+            <span className="tag-name">MANPOWER SUPPLY</span>
+          </a>
+        </div>
+
+        {/* Full-width Hairline Rule with SCROLL DOWN label matching reference */}
+        <div className="hero-scroll-divider">
+          <div className="hero-divider-line"></div>
+          <a
+            href="#service-overview"
+            className="hero-scroll-label"
+            aria-label="Scroll down to services"
+            onClick={(e) => {
+              e.preventDefault();
+              handleScrollTo('service-overview');
+            }}
+          >
+            <span>SCROLL DOWN</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="scroll-arrow">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </a>
         </div>
       </div>
     </section>
