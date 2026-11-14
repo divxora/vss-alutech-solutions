@@ -1,8 +1,11 @@
 export type EnquiryStatus =
   | 'new'
+  | 'pending'
   | 'in_review'
   | 'contacted'
   | 'proposal_sent'
+  | 'quoted'
+  | 'resolved'
   | 'won'
   | 'lost'
   | 'archived';

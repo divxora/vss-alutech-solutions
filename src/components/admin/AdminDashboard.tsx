@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Enquiry, EnquiryStatus } from '../../types';
 import { enquiryService } from '../../services/enquiryService';
 import { EnquiryDetailModal } from './EnquiryDetailModal';
@@ -24,6 +24,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [urgencyFilter, setUrgencyFilter] = useState<string>('all');
   const [selectedEnquiry, setSelectedEnquiry] = useState<Enquiry | null>(null);
 
+  // Manual-only Clear All Confirmation Modal State (never uses window.confirm)
+  const [clearModalOpen, setClearModalOpen] = useState(false);
+  const [clearConfirmText, setClearConfirmText] = useState('');
+  const [isClearingAll, setIsClearingAll] = useState(false);
+
+  const restoreInputRef = useRef<HTMLInputElement | null>(null);
+
   const loadData = async () => {
     setLoading(true);
     try {
@@ -44,7 +51,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   // Filtered Enquiries
   const filteredEnquiries = useMemo(() => {
     return enquiries.filter((enq) => {
-      // Search
       const q = searchQuery.toLowerCase().trim();
       if (q) {
         const matchesRef = enq.referenceId.toLowerCase().includes(q);
@@ -65,12 +71,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         }
       }
 
-      // Status
-      if (statusFilter !== 'all' && enq.status !== statusFilter) {
-        return false;
+      if (statusFilter !== 'all') {
+        if (statusFilter === 'new') {
+          if (enq.status !== 'new' && enq.status !== 'pending') return false;
+        } else if (enq.status !== statusFilter) {
+          return false;
+        }
       }
 
-      // Service Category
       if (serviceFilter !== 'all') {
         const cat = enq.serviceCategory.toLowerCase();
         if (serviceFilter === 'maintenance') {
@@ -82,9 +90,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         }
       }
 
-      // Urgency
       if (urgencyFilter !== 'all') {
-        if (!enq.timelineUrgency || !enq.timelineUrgency.toLowerCase().includes(urgencyFilter.toLowerCase())) {
+        if (
+          !enq.timelineUrgency ||
+          !enq.timelineUrgency.toLowerCase().includes(urgencyFilter.toLowerCase())
+        ) {
           return false;
         }
       }
@@ -96,9 +106,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   // Statistics
   const stats = useMemo(() => {
     const total = enquiries.length;
-    const newCount = enquiries.filter((e) => e.status === 'new').length;
-    const active = enquiries.filter((e) => ['in_review', 'contacted', 'proposal_sent'].includes(e.status)).length;
-    const wonCount = enquiries.filter((e) => e.status === 'won').length;
+    const newCount = enquiries.filter((e) => e.status === 'new' || e.status === 'pending').length;
+    const active = enquiries.filter((e) =>
+      ['in_review', 'contacted', 'proposal_sent', 'quoted'].includes(e.status)
+    ).length;
+    const wonCount = enquiries.filter((e) => e.status === 'won' || e.status === 'resolved').length;
     const emailSentCount = enquiries.filter((e) => e.emailStatus === 'sent').length;
     const emailRate = total > 0 ? Math.round((emailSentCount / total) * 100) : 100;
 
@@ -110,23 +122,61 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     onNotify('Export Successful', `Exported ${filteredEnquiries.length} enquiries to CSV.`, true);
   };
 
-  const handleClearAll = async () => {
-    const confirmed = window.confirm(
-      'Are you sure you want to clear ALL enquiries from the admin portal? This will permanently delete test & dummy records from the database.'
+  const handleBackupJSON = () => {
+    enquiryService.exportArchiveJSON(enquiries);
+    onNotify(
+      'Backup Downloaded',
+      `Full archive backup (${enquiries.length} request${enquiries.length === 1 ? '' : 's'}) saved as JSON.`,
+      true
     );
-    if (!confirmed) return;
+  };
 
+  const handleRestoreFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const result = await enquiryService.importArchiveJSON(text);
+      await loadData();
+      onNotify(
+        'Backup Restored',
+        `Merged ${result.imported} record(s). Total saved requests: ${result.total}.`,
+        true
+      );
+    } catch {
+      onNotify('Restore Failed', 'Selected file is not a valid VSS Alutech JSON backup.', false);
+    } finally {
+      e.target.value = '';
+    }
+  };
+
+  const openClearAllModal = () => {
+    setClearConfirmText('');
+    setClearModalOpen(true);
+  };
+
+  const executeManualClearAll = async () => {
+    if (clearConfirmText.trim().toUpperCase() !== 'CLEAR ALL') return;
+    setIsClearingAll(true);
     try {
       const res = await enquiryService.clearAllSubmissions();
       if (res.success) {
         setEnquiries([]);
         setSelectedEnquiry(null);
-        onNotify('Portal Cleared', 'All dummy and test requests have been cleared.', true);
+        setClearModalOpen(false);
+        setClearConfirmText('');
+        onNotify(
+          'Portal Manually Cleared',
+          'All stored requests have been manually cleared by administrator action.',
+          true
+        );
       } else {
         onNotify('Clear Failed', res.error || 'Could not clear requests.', false);
       }
     } catch (err: unknown) {
       onNotify('Error', err instanceof Error ? err.message : 'Error clearing requests.', false);
+    } finally {
+      setIsClearingAll(false);
     }
   };
 
@@ -135,17 +185,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     setSelectedEnquiry(updated);
   };
 
+  const handleEnquiryDeleted = (deletedId: string) => {
+    setEnquiries((prev) => prev.filter((e) => e.id !== deletedId));
+    setSelectedEnquiry(null);
+  };
+
   const getStatusBadgeClass = (status: EnquiryStatus) => {
     switch (status) {
       case 'new':
+      case 'pending':
         return 'badge-status-new';
       case 'in_review':
         return 'badge-status-review';
       case 'contacted':
         return 'badge-status-contacted';
       case 'proposal_sent':
+      case 'quoted':
         return 'badge-status-proposal';
       case 'won':
+      case 'resolved':
         return 'badge-status-won';
       case 'lost':
         return 'badge-status-lost';
@@ -171,14 +229,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
             <div>
               <h2 className="admin-title">VSS ALUTECH SOLUTIONS</h2>
-              <span className="admin-sub">Executive B2B Enquiry Management System</span>
+              <span className="admin-sub">
+                Permanent B2B Request Archive &bull; Retained Until Manual Clear
+              </span>
             </div>
           </div>
 
           <div className="admin-header-right">
             <div className="connection-badge live">
               <span className="pulse-dot"></span>
-              VSS Enterprise Backend (Live)
+              Long-Term Vault Active
             </div>
 
             <div className="admin-user-info">
@@ -187,9 +247,43 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
             <button
               type="button"
+              className="btn btn-sm btn-outline-light"
+              onClick={handleBackupJSON}
+              title="Download full lossless JSON backup of all saved requests"
+            >
+              💾 Backup JSON
+            </button>
+
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-light"
+              onClick={() => restoreInputRef.current?.click()}
+              title="Restore or merge requests from a saved JSON backup"
+            >
+              📂 Restore Backup
+            </button>
+            <input
+              ref={restoreInputRef}
+              type="file"
+              accept="application/json,.json"
+              onChange={handleRestoreFileChange}
+              style={{ display: 'none' }}
+            />
+
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-light"
+              onClick={handleExportCSV}
+              title="Download filtered records as CSV"
+            >
+              📥 Export CSV
+            </button>
+
+            <button
+              type="button"
               className="btn btn-sm btn-outline-danger"
-              onClick={handleClearAll}
-              title="Clear all requests from admin database"
+              onClick={openClearAllModal}
+              title="Manually clear all requests (requires explicit confirmation)"
               style={{
                 borderColor: '#ef4444',
                 color: '#f87171',
@@ -199,15 +293,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               }}
             >
               🗑 Clear All Requests
-            </button>
-
-            <button
-              type="button"
-              className="btn btn-sm btn-outline-light"
-              onClick={handleExportCSV}
-              title="Download filtered records as CSV"
-            >
-              📥 Export CSV
             </button>
 
             <button
@@ -244,7 +329,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
             <div className="metric-content">
               <div className="metric-value">{stats.total}</div>
-              <div className="metric-label">Total Enquiries</div>
+              <div className="metric-label">Total Saved Requests</div>
             </div>
           </div>
 
@@ -335,11 +420,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
                 <option value="all">All Statuses ({enquiries.length})</option>
-                <option value="new">New ({enquiries.filter((e) => e.status === 'new').length})</option>
+                <option value="new">
+                  New / Pending (
+                  {enquiries.filter((e) => e.status === 'new' || e.status === 'pending').length})
+                </option>
                 <option value="in_review">In Review</option>
                 <option value="contacted">Contacted</option>
                 <option value="proposal_sent">Proposal Sent</option>
+                <option value="quoted">Quoted</option>
                 <option value="won">Won / Closed Deals</option>
+                <option value="resolved">Resolved</option>
                 <option value="lost">Lost</option>
                 <option value="archived">Archived</option>
               </select>
@@ -382,7 +472,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               onClick={loadData}
               title="Refresh Enquiries from database"
             >
-              ↻ Refresh
+              ↻ Refresh ({filteredEnquiries.length}/{enquiries.length})
             </button>
           </div>
         </div>
@@ -401,7 +491,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
               <h4>No Enquiries Found</h4>
-              <p>Try adjusting your search query or status filter.</p>
+              <p>
+                {enquiries.length === 0
+                  ? 'All submitted client requests are stored here permanently until you clear them manually.'
+                  : 'Try adjusting your search query or status filter.'}
+              </p>
             </div>
           ) : (
             <div className="table-responsive">
@@ -422,7 +516,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <tbody>
                   {filteredEnquiries.map((enq) => (
                     <tr
-                      key={enq.id}
+                      key={enq.referenceId || enq.id}
                       className="table-row-clickable"
                       onClick={() => setSelectedEnquiry(enq)}
                     >
@@ -466,6 +560,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           {new Date(enq.createdAt).toLocaleDateString('en-IN', {
                             day: '2-digit',
                             month: 'short',
+                            year: 'numeric',
                           })}
                         </div>
                       </td>
@@ -497,9 +592,122 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           onClose={() => setSelectedEnquiry(null)}
           onStatusUpdated={handleEnquiryUpdated}
           onNotesUpdated={handleEnquiryUpdated}
+          onDeleted={handleEnquiryDeleted}
           onNotify={onNotify}
           currentAdminEmail={adminEmail}
         />
+      )}
+
+      {/* Explicit Manual Clear-All Confirmation Modal (Replaces window.confirm) */}
+      {clearModalOpen && (
+        <div className="enquiry-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="clearModalTitle">
+          <div className="enquiry-modal-card" style={{ maxWidth: '520px' }}>
+            <div className="enquiry-modal-header" style={{ background: '#7f1d1d', borderBottomColor: '#ef4444' }}>
+              <div className="modal-title-group">
+                <h3 id="clearModalTitle" style={{ margin: 0 }}>
+                  Manual Clear All Requests
+                </h3>
+                <span className="meta-timestamp" style={{ color: '#fecaca' }}>
+                  Permanent Retention Protection
+                </span>
+              </div>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setClearModalOpen(false)}
+                aria-label="Close clear confirmation"
+              >
+                &times;
+              </button>
+            </div>
+
+            <div className="enquiry-modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <p style={{ fontSize: '14px', lineHeight: 1.6, color: '#1e293b', margin: 0 }}>
+                All <strong>{enquiries.length}</strong> saved request(s) are stored permanently and are{' '}
+                <strong>never cleared automatically</strong>. Only continue if you intentionally want to wipe
+                every request from the Admin Portal.
+              </p>
+
+              <div
+                style={{
+                  background: '#fff7ed',
+                  border: '1px solid #fed7aa',
+                  borderRadius: '8px',
+                  padding: '12px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  gap: '10px',
+                  flexWrap: 'wrap',
+                }}
+              >
+                <span style={{ fontSize: '12px', color: '#9a3412', fontWeight: 600 }}>
+                  Recommended: save a backup copy before clearing.
+                </span>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-secondary"
+                  onClick={handleBackupJSON}
+                >
+                  💾 Download JSON Backup
+                </button>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="confirmClearInput"
+                  style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}
+                >
+                  Type <code>CLEAR ALL</code> below to confirm permanent manual deletion:
+                </label>
+                <input
+                  id="confirmClearInput"
+                  type="text"
+                  value={clearConfirmText}
+                  onChange={(e) => setClearConfirmText(e.target.value)}
+                  placeholder="CLEAR ALL"
+                  autoComplete="off"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    border: '1.5px solid #cbd5e1',
+                    fontSize: '14px',
+                    fontWeight: 700,
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '4px' }}>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-secondary"
+                  onClick={() => setClearModalOpen(false)}
+                  disabled={isClearingAll}
+                >
+                  Cancel — Keep All Requests
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-sm"
+                  disabled={clearConfirmText.trim().toUpperCase() !== 'CLEAR ALL' || isClearingAll}
+                  onClick={executeManualClearAll}
+                  style={{
+                    background:
+                      clearConfirmText.trim().toUpperCase() === 'CLEAR ALL' ? '#dc2626' : '#fca5a5',
+                    color: '#ffffff',
+                    border: 'none',
+                    fontWeight: 700,
+                    cursor:
+                      clearConfirmText.trim().toUpperCase() === 'CLEAR ALL' ? 'pointer' : 'not-allowed',
+                  }}
+                >
+                  {isClearingAll ? 'Clearing...' : 'Permanently Clear All'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

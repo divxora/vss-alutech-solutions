@@ -6,6 +6,7 @@ import path from 'node:path';
 
 import { initDatabase } from './config/db';
 import { userModel } from './models/userModel';
+import { submissionModel } from './models/submissionModel';
 import contactRoutes from './routes/contactRoutes';
 import manpowerRoutes from './routes/manpowerRoutes';
 import quoteRoutes from './routes/quoteRoutes';
@@ -15,9 +16,10 @@ import { errorHandler } from './middleware/errorHandler';
 // Load environment variables
 dotenv.config();
 
-// Initialize Database & seed defaults
+// Initialize Database & seed defaults (never wipes submissions)
 initDatabase();
 userModel.seedDefaultAdmin();
+void submissionModel.restoreFromCloudIfAvailable();
 
 export function createApp(): Express {
   const app = express();

@@ -7,6 +7,7 @@ interface EnquiryDetailModalProps {
   onClose: () => void;
   onStatusUpdated: (updatedEnquiry: Enquiry) => void;
   onNotesUpdated: (updatedEnquiry: Enquiry) => void;
+  onDeleted?: (deletedId: string) => void;
   onNotify: (title: string, message: string, isSuccess?: boolean) => void;
   currentAdminEmail: string;
 }
@@ -16,6 +17,7 @@ export const EnquiryDetailModal: React.FC<EnquiryDetailModalProps> = ({
   onClose,
   onStatusUpdated,
   onNotesUpdated,
+  onDeleted,
   onNotify,
   currentAdminEmail,
 }) => {
@@ -23,12 +25,15 @@ export const EnquiryDetailModal: React.FC<EnquiryDetailModalProps> = ({
   const [notes, setNotes] = useState<string>(enquiry.adminNotes || '');
   const [isSavingNotes, setIsSavingNotes] = useState(false);
   const [isRetryingEmail, setIsRetryingEmail] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [activities, setActivities] = useState<EnquiryActivity[]>([]);
   const [loadingActivities, setLoadingActivities] = useState(true);
 
   useEffect(() => {
     setCurrentStatus(enquiry.status);
     setNotes(enquiry.adminNotes || '');
+    setConfirmingDelete(false);
 
     const loadActivities = async () => {
       setLoadingActivities(true);
@@ -55,7 +60,12 @@ export const EnquiryDetailModal: React.FC<EnquiryDetailModalProps> = ({
 
   const handleSaveNotes = async () => {
     setIsSavingNotes(true);
-    const success = await enquiryService.updateNotes(enquiry.id, notes, currentAdminEmail);
+    const success = await enquiryService.updateNotes(
+      enquiry.id,
+      notes,
+      currentAdminEmail,
+      currentStatus
+    );
     setIsSavingNotes(false);
     if (success) {
       onNotify('Notes Saved', 'Internal follow-up notes updated.', true);
@@ -64,6 +74,26 @@ export const EnquiryDetailModal: React.FC<EnquiryDetailModalProps> = ({
       setActivities(updatedActs);
     } else {
       onNotify('Error', 'Failed to save notes', false);
+    }
+  };
+
+  const handleManualDelete = async () => {
+    setIsDeleting(true);
+    try {
+      const ok = await enquiryService.deleteEnquiry(enquiry.id, enquiry.referenceId);
+      if (ok) {
+        onNotify(
+          'Request Deleted',
+          `Request ${enquiry.referenceId} has been manually deleted.`,
+          true
+        );
+        onDeleted?.(enquiry.id);
+        onClose();
+      } else {
+        onNotify('Delete Failed', 'Unable to delete this request.', false);
+      }
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -266,10 +296,13 @@ export const EnquiryDetailModal: React.FC<EnquiryDetailModalProps> = ({
                     className={`status-dropdown status-style-${currentStatus}`}
                   >
                     <option value="new">● NEW ENQUIRY</option>
+                    <option value="pending">● PENDING REVIEW</option>
                     <option value="in_review">● IN REVIEW</option>
                     <option value="contacted">● CONTACTED</option>
                     <option value="proposal_sent">● PROPOSAL SENT</option>
+                    <option value="quoted">● QUOTED</option>
                     <option value="won">● WON / CLOSED DEAL</option>
+                    <option value="resolved">● RESOLVED</option>
                     <option value="lost">● LOST</option>
                     <option value="archived">● ARCHIVED</option>
                   </select>
@@ -373,6 +406,66 @@ export const EnquiryDetailModal: React.FC<EnquiryDetailModalProps> = ({
                       </li>
                     ))}
                   </ul>
+                )}
+              </div>
+
+              {/* Manual Single-Record Delete */}
+              <div className="detail-card">
+                <h4 className="detail-card-title">Manual Record Management</h4>
+                <p style={{ fontSize: '12px', color: '#64748b', marginBottom: '10px', lineHeight: 1.5 }}>
+                  This request stays saved permanently unless you delete it manually.
+                </p>
+                {!confirmingDelete ? (
+                  <button
+                    type="button"
+                    className="btn btn-sm"
+                    onClick={() => setConfirmingDelete(true)}
+                    style={{
+                      border: '1px solid #fca5a5',
+                      color: '#b91c1c',
+                      background: '#fef2f2',
+                      fontWeight: 600,
+                    }}
+                  >
+                    Delete This Request Manually
+                  </button>
+                ) : (
+                  <div
+                    style={{
+                      background: '#fef2f2',
+                      border: '1px solid #fca5a5',
+                      borderRadius: '8px',
+                      padding: '10px 12px',
+                    }}
+                  >
+                    <p style={{ fontSize: '12px', color: '#991b1b', fontWeight: 600, marginBottom: '8px' }}>
+                      Permanently delete {enquiry.referenceId}? This cannot be undone.
+                    </p>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      <button
+                        type="button"
+                        className="btn btn-sm"
+                        disabled={isDeleting}
+                        onClick={handleManualDelete}
+                        style={{
+                          background: '#dc2626',
+                          color: '#ffffff',
+                          border: 'none',
+                          fontWeight: 700,
+                        }}
+                      >
+                        {isDeleting ? 'Deleting...' : 'Confirm Delete'}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-secondary"
+                        disabled={isDeleting}
+                        onClick={() => setConfirmingDelete(false)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>

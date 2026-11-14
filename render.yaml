@@ -12,15 +12,20 @@ services:
       - key: PORT
         value: 10000
       - key: SQLITE_DB_PATH
-        value: data/vss_alutech.sqlite
+        value: /app/data/vss_alutech.sqlite
       - key: JWT_SECRET
         generateValue: true
       - key: JWT_EXPIRES_IN
         value: 24h
       - key: ADMIN_DEFAULT_EMAIL
-        value: admin@vsslutechsolutions.in
+        value: vssalutechsolutions@gmail.com
       - key: ADMIN_NOTIFICATION_EMAIL
-        value: info@vsslutechsolutions.in
+        value: vssalutechsolutions@gmail.com
+      # Optional cloud mirror (Supabase PostgreSQL) for multi-year retention across container rebuilds:
+      # - key: SUPABASE_URL
+      #   sync: false
+      # - key: SUPABASE_SERVICE_ROLE_KEY
+      #   sync: false
       # Set your SMTP credentials in the Render dashboard for real email delivery:
       # - key: SMTP_HOST
       #   sync: false
@@ -31,7 +36,7 @@ services:
       # - key: SMTP_PASS
       #   sync: false
       # - key: SMTP_FROM
-      #   value: "VSS Alutech Solutions" <info@vsslutechsolutions.in>
+      #   value: "VSS Alutech Solutions" <vssalutechsolutions@gmail.com>
     disk:
       name: vss-data
       mountPath: /app/data

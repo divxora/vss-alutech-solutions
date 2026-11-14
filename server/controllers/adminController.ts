@@ -116,14 +116,15 @@ export async function handleAdminLogin(req: AuthenticatedRequest, res: Response)
  * Protected route for authorized admins to view all stored form enquiries, manpower requests, and quote submissions
  */
 export async function handleGetSubmissions(req: AuthenticatedRequest, res: Response): Promise<void> {
-  const { type, status, search, page, limit } = req.query;
+  const { type, status, search, page, limit, all } = req.query;
 
   const result = submissionModel.findAll({
     type: type ? String(type) : undefined,
     status: status ? String(status) : undefined,
     search: search ? String(search) : undefined,
     page: page ? parseInt(String(page), 10) : 1,
-    limit: limit ? parseInt(String(limit), 10) : 20,
+    limit: limit ? parseInt(String(limit), 10) : 500,
+    all: all === 'true',
   });
 
   const stats = submissionModel.getStats();
@@ -169,11 +170,31 @@ export async function handleUpdateSubmissionStatus(req: AuthenticatedRequest, re
   const id = parseInt(req.params.id, 10);
   const { status, adminNotes } = req.body;
 
-  const validStatuses = ['pending', 'in_review', 'quoted', 'resolved', 'archived'];
-  if (!status || !validStatuses.includes(status)) {
+  const validStatuses = [
+    'new',
+    'pending',
+    'in_review',
+    'contacted',
+    'proposal_sent',
+    'quoted',
+    'resolved',
+    'won',
+    'lost',
+    'archived',
+  ] as const;
+
+  if (status !== undefined && !validStatuses.includes(status)) {
     res.status(400).json({
       success: false,
       error: `Invalid status. Must be one of: ${validStatuses.join(', ')}`,
+    });
+    return;
+  }
+
+  if (status === undefined && adminNotes === undefined) {
+    res.status(400).json({
+      success: false,
+      error: 'Please provide a status or adminNotes update.',
     });
     return;
   }
@@ -188,7 +209,9 @@ export async function handleUpdateSubmissionStatus(req: AuthenticatedRequest, re
 
   res.status(200).json({
     success: true,
-    message: `Submission status successfully updated to "${status}".`,
+    message: status
+      ? `Submission status successfully updated to "${status}".`
+      : 'Submission notes updated successfully.',
     submission: {
       ...updated,
       details: updated.details_json ? JSON.parse(updated.details_json) : null,
